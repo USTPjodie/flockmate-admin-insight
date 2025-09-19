@@ -4,7 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, Download, FileText, Search, Filter, Eye, Plus, Clock } from "lucide-react";
+import { Calendar, Download, FileText, Search, Filter, Eye, Plus, Clock, Settings } from "lucide-react";
+import { ReportGenerator } from "@/components/reports/ReportGenerator";
+import { useReports } from "@/hooks/useReports";
+import { useState } from "react";
 
 const reports = [
   {
@@ -112,6 +115,19 @@ const getTypeColor = (type: string) => {
 };
 
 const Reports = () => {
+  const { reports, filters, setFilters, createReport, downloadReport, retryReport } = useReports();
+  const [showGenerator, setShowGenerator] = useState(false);
+
+  const handleGenerate = async (template: any, config: any) => {
+    await createReport({
+      title: config.title || template.name,
+      type: 'operational',
+      format: config.format,
+      parameters: config
+    });
+    setShowGenerator(false);
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -121,11 +137,30 @@ const Reports = () => {
             <h1 className="text-3xl font-bold text-foreground">Batch Reports</h1>
             <p className="text-muted-foreground">Generate, manage and export comprehensive farm reports</p>
           </div>
-          <Button size="lg">
-            <Plus className="h-4 w-4 mr-2" />
-            Generate New Report
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button variant="outline" size="lg">
+              <Settings className="h-4 w-4 mr-2" />
+              Report Settings
+            </Button>
+            <Button onClick={() => setShowGenerator(true)} size="lg">
+              <Plus className="h-4 w-4 mr-2" />
+              Generate New Report
+            </Button>
+          </div>
         </div>
+
+        {/* Custom Report Generator */}
+        {showGenerator && (
+          <Card className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-foreground">Custom Report Generator</h3>
+              <Button variant="ghost" size="sm" onClick={() => setShowGenerator(false)}>
+                Close
+              </Button>
+            </div>
+            <ReportGenerator onGenerate={handleGenerate} />
+          </Card>
+        )}
 
         {/* Report Templates */}
         <Card className="p-6">
@@ -210,11 +245,11 @@ const Reports = () => {
                         {report.type}
                       </div>
                     </td>
-                    <td className="py-4 px-4 text-foreground">{report.period}</td>
+                    <td className="py-4 px-4 text-foreground">Last 6 Months</td>
                     <td className="py-4 px-4 text-center">
                       {getStatusBadge(report.status)}
                     </td>
-                    <td className="py-4 px-4 text-foreground">{report.generated}</td>
+                    <td className="py-4 px-4 text-foreground">{new Date(report.generatedAt).toLocaleDateString()}</td>
                     <td className="py-4 px-4 text-center text-foreground">{report.size}</td>
                     <td className="py-4 px-4 text-center">
                       <div className="flex items-center justify-center space-x-2">

@@ -1,11 +1,11 @@
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
-import { MetricCard } from "@/components/dashboard/MetricCard";
+import { FinancialOverview } from "@/components/analytics/FinancialOverview";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { DollarSign, TrendingUp, TrendingDown, Calendar, Download, Filter } from "lucide-react";
+import { DollarSign, TrendingUp, TrendingDown, Calendar, Download, Filter, BarChart3, PieChart, LineChart } from "lucide-react";
+import { useState } from "react";
 
 const revenueData = [
   { month: "Jan", revenue: 45000, cost: 32000, profit: 13000 },
@@ -32,6 +32,8 @@ const costBreakdown = [
 ];
 
 const Analytics = () => {
+  const [activeView, setActiveView] = useState('overview');
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -42,6 +44,17 @@ const Analytics = () => {
             <p className="text-muted-foreground">Comprehensive P&L analysis and financial insights</p>
           </div>
           <div className="flex items-center space-x-3">
+            <Select defaultValue="overview" onValueChange={setActiveView}>
+              <SelectTrigger className="w-48">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="overview">Financial Overview</SelectItem>
+                <SelectItem value="profitability">Batch Profitability</SelectItem>
+                <SelectItem value="costs">Cost Analysis</SelectItem>
+                <SelectItem value="trends">Trend Analysis</SelectItem>
+              </SelectContent>
+            </Select>
             <Select defaultValue="6months">
               <SelectTrigger className="w-40">
                 <SelectValue />
@@ -55,167 +68,108 @@ const Analytics = () => {
             </Select>
             <Button variant="outline" size="sm">
               <Filter className="h-4 w-4 mr-2" />
-              Filters
+              Advanced Filters
             </Button>
             <Button size="sm">
               <Download className="h-4 w-4 mr-2" />
-              Export Report
+              Export Analysis
             </Button>
           </div>
         </div>
 
-        {/* Financial KPIs */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <MetricCard
-            title="Total Revenue"
-            value="$331,200"
-            change="+15.2%"
-            changeType="positive"
-            icon={<DollarSign className="h-5 w-5 text-success" />}
-          />
-          <MetricCard
-            title="Total Costs"
-            value="$232,000"
-            change="+8.1%"
-            changeType="neutral"
-            icon={<TrendingUp className="h-5 w-5 text-primary" />}
-          />
-          <MetricCard
-            title="Net Profit"
-            value="$99,200"
-            change="+28.5%"
-            changeType="positive"
-            icon={<TrendingUp className="h-5 w-5 text-success" />}
-          />
-          <MetricCard
-            title="Profit Margin"
-            value="29.9%"
-            change="+3.2%"
-            changeType="positive"
-            icon={<TrendingUp className="h-5 w-5 text-accent" />}
-          />
-        </div>
-
-        {/* Revenue & Profit Trends */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-foreground">Revenue vs Profit Trend</h3>
-              <Badge variant="outline">6 Months</Badge>
-            </div>
-            <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={revenueData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                  <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" />
-                  <YAxis stroke="hsl(var(--muted-foreground))" />
-                  <Tooltip 
-                    contentStyle={{
-                      backgroundColor: "hsl(var(--card))",
-                      border: "1px solid hsl(var(--border))",
-                      borderRadius: "8px"
-                    }}
-                  />
-                  <Line type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" strokeWidth={3} />
-                  <Line type="monotone" dataKey="profit" stroke="hsl(var(--success))" strokeWidth={3} />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </Card>
-
-          <Card className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-foreground">Cost Breakdown</h3>
-              <Badge variant="outline">Current Quarter</Badge>
-            </div>
-            <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={costBreakdown}
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={100}
-                    dataKey="value"
-                    label={({ name, value }) => `${name}: ${value}%`}
-                  >
-                    {costBreakdown.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </Card>
-        </div>
-
-        {/* Batch Profitability Analysis */}
-        <Card className="p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-foreground">Batch Profitability Analysis</h3>
-            <Button variant="outline" size="sm">
-              <Calendar className="h-4 w-4 mr-2" />
-              Select Period
+        {/* Navigation Tabs */}
+        <Card className="p-1">
+          <div className="flex items-center gap-1">
+            <Button 
+              variant={activeView === 'overview' ? 'default' : 'ghost'} 
+              size="sm"
+              onClick={() => setActiveView('overview')}
+              className="flex items-center gap-2"
+            >
+              <BarChart3 className="h-4 w-4" />
+              Financial Overview
             </Button>
-          </div>
-          
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-border">
-                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">Batch ID</th>
-                  <th className="text-right py-3 px-4 font-medium text-muted-foreground">Revenue</th>
-                  <th className="text-right py-3 px-4 font-medium text-muted-foreground">Total Cost</th>
-                  <th className="text-right py-3 px-4 font-medium text-muted-foreground">Net Profit</th>
-                  <th className="text-right py-3 px-4 font-medium text-muted-foreground">Margin %</th>
-                  <th className="text-center py-3 px-4 font-medium text-muted-foreground">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {batchProfitability.map((batch, index) => (
-                  <tr key={index} className="border-b border-border hover:bg-muted/50">
-                    <td className="py-4 px-4 font-medium text-foreground">{batch.batch}</td>
-                    <td className="py-4 px-4 text-right text-foreground">${batch.revenue.toLocaleString()}</td>
-                    <td className="py-4 px-4 text-right text-foreground">${batch.cost.toLocaleString()}</td>
-                    <td className="py-4 px-4 text-right font-medium text-success">${batch.profit.toLocaleString()}</td>
-                    <td className="py-4 px-4 text-right">
-                      <Badge variant={batch.margin > 30 ? "default" : "secondary"}>
-                        {batch.margin}%
-                      </Badge>
-                    </td>
-                    <td className="py-4 px-4 text-center">
-                      <Button variant="ghost" size="sm">
-                        View Details
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <Button 
+              variant={activeView === 'profitability' ? 'default' : 'ghost'} 
+              size="sm"
+              onClick={() => setActiveView('profitability')}
+              className="flex items-center gap-2"
+            >
+              <DollarSign className="h-4 w-4" />
+              Batch Analysis
+            </Button>
+            <Button 
+              variant={activeView === 'costs' ? 'default' : 'ghost'} 
+              size="sm"
+              onClick={() => setActiveView('costs')}
+              className="flex items-center gap-2"
+            >
+              <PieChart className="h-4 w-4" />
+              Cost Breakdown
+            </Button>
+            <Button 
+              variant={activeView === 'trends' ? 'default' : 'ghost'} 
+              size="sm"
+              onClick={() => setActiveView('trends')}
+              className="flex items-center gap-2"
+            >
+              <LineChart className="h-4 w-4" />
+              Trend Analysis
+            </Button>
           </div>
         </Card>
 
-        {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Dynamic Content */}
+        {activeView === 'overview' && <FinancialOverview />}
+        
+        {activeView === 'profitability' && (
           <Card className="p-6">
-            <h4 className="font-semibold text-foreground mb-2">P&L Report Generator</h4>
-            <p className="text-sm text-muted-foreground mb-4">Generate comprehensive profit & loss reports</p>
-            <Button className="w-full">Generate Report</Button>
+            <h3 className="text-lg font-semibold text-foreground mb-6">Batch Profitability Analysis</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="text-left py-3 px-4 font-medium text-muted-foreground">Batch ID</th>
+                    <th className="text-right py-3 px-4 font-medium text-muted-foreground">Revenue</th>
+                    <th className="text-right py-3 px-4 font-medium text-muted-foreground">Total Cost</th>
+                    <th className="text-right py-3 px-4 font-medium text-muted-foreground">Net Profit</th>
+                    <th className="text-right py-3 px-4 font-medium text-muted-foreground">Margin %</th>
+                    <th className="text-center py-3 px-4 font-medium text-muted-foreground">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {batchProfitability.map((batch, index) => (
+                    <tr key={index} className="border-b border-border hover:bg-muted/50">
+                      <td className="py-4 px-4 font-medium text-foreground">{batch.batch}</td>
+                      <td className="py-4 px-4 text-right text-foreground">${batch.revenue.toLocaleString()}</td>
+                      <td className="py-4 px-4 text-right text-foreground">${batch.cost.toLocaleString()}</td>
+                      <td className="py-4 px-4 text-right font-medium text-success">${batch.profit.toLocaleString()}</td>
+                      <td className="py-4 px-4 text-right">
+                        <Badge variant={batch.margin > 30 ? "default" : "secondary"}>
+                          {batch.margin}%
+                        </Badge>
+                      </td>
+                      <td className="py-4 px-4 text-center">
+                        <Button variant="ghost" size="sm">View Details</Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </Card>
-          
-          <Card className="p-6">
-            <h4 className="font-semibold text-foreground mb-2">Cost Analysis</h4>
-            <p className="text-sm text-muted-foreground mb-4">Detailed breakdown of operational costs</p>
-            <Button variant="outline" className="w-full">Analyze Costs</Button>
+        )}
+
+        {(activeView === 'costs' || activeView === 'trends') && (
+          <Card className="p-6 text-center">
+            <h3 className="text-lg font-semibold text-foreground mb-2">
+              {activeView === 'costs' ? 'Cost Analysis' : 'Trend Analysis'}
+            </h3>
+            <p className="text-muted-foreground">
+              Detailed {activeView === 'costs' ? 'cost breakdown' : 'trend analysis'} dashboard coming soon
+            </p>
           </Card>
-          
-          <Card className="p-6">
-            <h4 className="font-semibold text-foreground mb-2">ROI Calculator</h4>
-            <p className="text-sm text-muted-foreground mb-4">Calculate return on investment for batches</p>
-            <Button variant="outline" className="w-full">Calculate ROI</Button>
-          </Card>
-        </div>
+        )}
       </div>
     </DashboardLayout>
   );

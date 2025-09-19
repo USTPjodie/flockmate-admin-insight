@@ -5,7 +5,10 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Calendar, Download, Database, FileText, Table, BarChart3, Filter, Clock, CheckCircle } from "lucide-react";
+import { Calendar, Download, Database, FileText, Table, BarChart3, Filter, Clock, CheckCircle, Settings, Eye } from "lucide-react";
+import { ReportGenerator } from "@/components/reports/ReportGenerator";
+import { useExportTemplates } from "@/hooks/useExportTemplates";
+import { useState } from "react";
 
 const exportOptions = [
   {
@@ -103,6 +106,19 @@ const getStatusBadge = (status: string) => {
 };
 
 const Export = () => {
+  const { templates } = useExportTemplates();
+  const [showGenerator, setShowGenerator] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('all');
+
+  const handleGenerate = (template: any, config: any) => {
+    console.log('Generating report:', template, config);
+    setShowGenerator(false);
+  };
+
+  const filteredExports = selectedCategory === 'all' 
+    ? exportOptions 
+    : exportOptions.filter(cat => cat.category === selectedCategory);
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -113,13 +129,25 @@ const Export = () => {
             <p className="text-muted-foreground">Export comprehensive farm data for analysis and reporting</p>
           </div>
           <div className="flex items-center space-x-3">
+            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Filter by category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                <SelectItem value="Financial Data">Financial Data</SelectItem>
+                <SelectItem value="Performance Metrics">Performance Metrics</SelectItem>
+                <SelectItem value="Operational Data">Operational Data</SelectItem>
+                <SelectItem value="Compliance Reports">Compliance Reports</SelectItem>
+              </SelectContent>
+            </Select>
             <Button variant="outline" size="sm">
-              <Filter className="h-4 w-4 mr-2" />
-              Export Filters
+              <Settings className="h-4 w-4 mr-2" />
+              Advanced Settings
             </Button>
-            <Button size="sm">
+            <Button onClick={() => setShowGenerator(true)} size="sm">
               <Download className="h-4 w-4 mr-2" />
-              Bulk Export
+              Generate Custom Report
             </Button>
           </div>
         </div>
@@ -204,9 +232,22 @@ const Export = () => {
           </div>
         </Card>
 
+        {/* Custom Report Generator */}
+        {showGenerator && (
+          <Card className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-foreground">Custom Report Generator</h3>
+              <Button variant="ghost" size="sm" onClick={() => setShowGenerator(false)}>
+                Close
+              </Button>
+            </div>
+            <ReportGenerator onGenerate={handleGenerate} />
+          </Card>
+        )}
+
         {/* Export Categories */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {exportOptions.map((category, categoryIndex) => {
+          {filteredExports.map((category, categoryIndex) => {
             const Icon = category.icon;
             return (
               <Card key={categoryIndex} className="p-6">
