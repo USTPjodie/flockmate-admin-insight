@@ -1,18 +1,22 @@
 import { BarChart3, Users, TrendingUp, Settings, Home, FileText, PieChart, Database } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const navigation = [
-  { name: "Dashboard", href: "/", icon: Home, current: true },
-  { name: "Financial Analytics", href: "/analytics", icon: TrendingUp, current: false },
-  { name: "Farm Performance", href: "/performance", icon: BarChart3, current: false },
-  { name: "Batch Reports", href: "/reports", icon: FileText, current: false },
-  { name: "Comparisons", href: "/comparisons", icon: PieChart, current: false },
-  { name: "Data Export", href: "/export", icon: Database, current: false },
-  { name: "User Management", href: "/users", icon: Users, current: false },
-  { name: "Settings", href: "/settings", icon: Settings, current: false },
+  { name: "Dashboard", href: "/", icon: Home },
+  { name: "Financial Analytics", href: "/analytics", icon: TrendingUp },
+  { name: "Farm Performance", href: "/performance", icon: BarChart3 },
+  { name: "Batch Reports", href: "/reports", icon: FileText },
+  { name: "Comparisons", href: "/comparisons", icon: PieChart },
+  { name: "Data Export", href: "/export", icon: Database },
+  { name: "User Management", href: "/users", icon: Users },
+  { name: "Settings", href: "/settings", icon: Settings },
 ];
 
 export const Sidebar = () => {
+  const location = useLocation();
+
   return (
     <div className="fixed inset-y-0 left-0 z-50 w-64 bg-card border-r border-card-border">
       {/* Logo */}
@@ -33,20 +37,21 @@ export const Sidebar = () => {
         <div className="space-y-1">
           {navigation.map((item) => {
             const Icon = item.icon;
+            const isActive = location.pathname === item.href;
             return (
-              <a
+              <Link
                 key={item.name}
-                href={item.href}
+                to={item.href}
                 className={cn(
                   "group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200",
-                  item.current
+                  isActive
                     ? "bg-primary text-primary-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted"
                 )}
               >
                 <Icon className="mr-3 h-5 w-5 flex-shrink-0" />
                 {item.name}
-              </a>
+              </Link>
             );
           })}
         </div>
