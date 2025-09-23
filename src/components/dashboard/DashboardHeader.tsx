@@ -1,11 +1,14 @@
-import { Bell, Search, ChevronDown } from "lucide-react";
+import { Bell, Search, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { AlertTriangle, TrendingDown, Activity } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAuth } from "@/hooks/useAuth";
 
 export const DashboardHeader = () => {
+  const { user, logout } = useAuth();
   const alerts = [
     {
       id: 1,
@@ -99,15 +102,25 @@ export const DashboardHeader = () => {
           </Popover>
 
           {/* User Profile */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center gap-3">
             <div className="text-right">
-              <div className="text-sm font-medium text-foreground">John Farmer</div>
-              <div className="text-xs text-muted-foreground">Management Admin</div>
+              <p className="text-sm font-medium">{user?.name}</p>
+              <p className="text-xs text-muted-foreground">{user?.role}</p>
             </div>
-            <div className="h-8 w-8 bg-gradient-primary rounded-full flex items-center justify-center">
-              <span className="text-primary-foreground font-medium text-sm">JF</span>
-            </div>
-            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+            <Avatar>
+              <AvatarImage src={user?.avatar} />
+              <AvatarFallback>
+                {user?.name?.split(' ').map(n => n[0]).join('') || 'U'}
+              </AvatarFallback>
+            </Avatar>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={logout}
+              className="ml-2 text-muted-foreground hover:text-destructive"
+            >
+              <LogOut className="h-4 w-4" />
+            </Button>
           </div>
         </div>
       </div>

@@ -4,6 +4,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { lazy, Suspense } from "react";
+import { AuthProvider, useAuth } from "@/hooks/useAuth";
+import { LoginScreen } from "@/components/auth/LoginScreen";
 
 // Lazy load pages for better performance
 const Index = lazy(() => import("./pages/Index"));
@@ -30,28 +32,42 @@ const PageLoader = () => (
 
 const queryClient = new QueryClient();
 
+const AppContent = () => {
+  const { user } = useAuth();
+
+  if (!user) {
+    return <LoginScreen />;
+  }
+
+  return (
+    <BrowserRouter>
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/analytics" element={<Analytics />} />
+          <Route path="/performance" element={<Performance />} />
+          <Route path="/reports" element={<Reports />} />
+          <Route path="/comparisons" element={<Comparisons />} />
+          <Route path="/export" element={<Export />} />
+          <Route path="/users" element={<Users />} />
+          <Route path="/settings" element={<Settings />} />
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Suspense>
+    </BrowserRouter>
+  );
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Suspense fallback={<PageLoader />}>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/analytics" element={<Analytics />} />
-            <Route path="/performance" element={<Performance />} />
-            <Route path="/reports" element={<Reports />} />
-            <Route path="/comparisons" element={<Comparisons />} />
-            <Route path="/export" element={<Export />} />
-            <Route path="/users" element={<Users />} />
-            <Route path="/settings" element={<Settings />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Suspense>
-      </BrowserRouter>
-    </TooltipProvider>
+    <AuthProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <AppContent />
+      </TooltipProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 
