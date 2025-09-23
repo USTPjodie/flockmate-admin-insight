@@ -1,6 +1,5 @@
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { MetricCard } from "@/components/dashboard/MetricCard";
-import { AlertsFeed } from "@/components/dashboard/AlertsFeed";
 import { PerformanceChart } from "@/components/dashboard/PerformanceChart";
 import { DollarSign, TrendingUp, Users, AlertTriangle } from "lucide-react";
 
@@ -52,14 +51,9 @@ const Index = () => {
           />
         </div>
 
-        {/* Charts and Analytics */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
-            <PerformanceChart />
-          </div>
-          <div className="lg:col-span-1">
-            <AlertsFeed />
-          </div>
+        {/* Performance Chart */}
+        <div className="mt-8">
+          <PerformanceChart />
         </div>
 
         {/* Quick Actions */}
