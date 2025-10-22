@@ -1,9 +1,32 @@
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { MetricCard } from "@/components/dashboard/MetricCard";
 import { PerformanceChart } from "@/components/dashboard/PerformanceChart";
+import { AlertsFeed } from "@/components/dashboard/AlertsFeed";
 import { DollarSign, TrendingUp, Users, AlertTriangle } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 
 const Index = () => {
+  const { data: metrics = [] } = useQuery({
+    queryKey: ['dashboard-metrics'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('dashboard_metrics')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const getMetricIcon = (name: string) => {
+    if (name.toLowerCase().includes('profit')) return <DollarSign className="h-5 w-5 text-success" />;
+    if (name.toLowerCase().includes('fcr')) return <TrendingUp className="h-5 w-5 text-primary" />;
+    if (name.toLowerCase().includes('bird')) return <Users className="h-5 w-5 text-accent" />;
+    return <AlertTriangle className="h-5 w-5 text-warning" />;
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -21,39 +44,22 @@ const Index = () => {
 
         {/* KPI Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <MetricCard
-            title="Total Gross Profit"
-            value="$284,590"
-            change="+12.5%"
-            changeType="positive"
-            icon={<DollarSign className="h-5 w-5 text-success" />}
-          />
-          <MetricCard
-            title="Average FCR"
-            value="1.68"
-            change="-0.03"
-            changeType="positive"
-            icon={<TrendingUp className="h-5 w-5 text-primary" />}
-          />
-          <MetricCard
-            title="Active Birds"
-            value="45,230"
-            change="+2,850"
-            changeType="positive"
-            icon={<Users className="h-5 w-5 text-accent" />}
-          />
-          <MetricCard
-            title="Avg Mortality Rate"
-            value="2.4%"
-            change="+0.2%"
-            changeType="negative"
-            icon={<AlertTriangle className="h-5 w-5 text-warning" />}
-          />
+          {metrics.map((metric) => (
+            <MetricCard
+              key={metric.id}
+              title={metric.metric_name}
+              value={metric.metric_value}
+              change={metric.change_percentage}
+              changeType={metric.change_type as "positive" | "negative" | "neutral"}
+              icon={getMetricIcon(metric.metric_name)}
+            />
+          ))}
         </div>
 
-        {/* Performance Chart */}
-        <div className="mt-8">
+        {/* Performance Chart and Alerts */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
           <PerformanceChart />
+          <AlertsFeed />
         </div>
 
         {/* Quick Actions */}

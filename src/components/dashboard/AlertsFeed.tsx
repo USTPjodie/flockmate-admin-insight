@@ -2,41 +2,10 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AlertTriangle, Info, CheckCircle, XCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
+import { formatDistanceToNow } from "date-fns";
 
-const alerts = [
-  {
-    id: 1,
-    type: "critical",
-    title: "High Mortality Rate",
-    message: "Farm B - Batch #2024-15 reporting 5.2% mortality",
-    time: "2 minutes ago",
-    farm: "Greenfield Farm B"
-  },
-  {
-    id: 2,
-    type: "warning",
-    title: "Feed Inventory Low",
-    message: "Starter feed will run out in 3 days at current consumption",
-    time: "15 minutes ago",
-    farm: "Valley Farm A"
-  },
-  {
-    id: 3,
-    type: "info",
-    title: "Batch Sale Completed",
-    message: "Batch #2024-12 sold - Final weight: 18,450 kg",
-    time: "1 hour ago",
-    farm: "Hillside Farm"
-  },
-  {
-    id: 4,
-    type: "success",
-    title: "FCR Target Achieved",
-    message: "Batch #2024-13 achieved FCR of 1.65 (Target: 1.70)",
-    time: "3 hours ago",
-    farm: "Riverside Farm"
-  }
-];
 
 const getAlertIcon = (type: string) => {
   switch (type) {
@@ -65,6 +34,20 @@ const getAlertBadgeVariant = (type: string) => {
 };
 
 export const AlertsFeed = () => {
+  const { data: alerts = [] } = useQuery({
+    queryKey: ['alerts-feed'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('alerts')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(10);
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+
   return (
     <Card className="p-6">
       <div className="flex items-center justify-between mb-4">
@@ -102,7 +85,7 @@ export const AlertsFeed = () => {
                 </p>
                 <div className="flex items-center justify-between text-xs text-muted-foreground">
                   <span>{alert.farm}</span>
-                  <span>{alert.time}</span>
+                  <span>{formatDistanceToNow(new Date(alert.created_at), { addSuffix: true })}</span>
                 </div>
               </div>
             </div>

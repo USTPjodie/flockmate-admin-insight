@@ -4,8 +4,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { lazy, Suspense } from "react";
-import { AuthProvider, useAuth } from "@/hooks/useAuth";
-import { LoginScreen } from "@/components/auth/LoginScreen";
+import { AuthProvider, useSupabaseAuth } from "@/hooks/useSupabaseAuth";
+import { AuthScreen } from "@/components/auth/AuthScreen";
 
 // Lazy load pages for better performance
 const Index = lazy(() => import("./pages/Index"));
@@ -33,10 +33,14 @@ const PageLoader = () => (
 const queryClient = new QueryClient();
 
 const AppContent = () => {
-  const { user } = useAuth();
+  const { user, loading } = useSupabaseAuth();
+
+  if (loading) {
+    return <PageLoader />;
+  }
 
   if (!user) {
-    return <LoginScreen />;
+    return <AuthScreen />;
   }
 
   return (

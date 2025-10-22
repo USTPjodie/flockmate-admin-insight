@@ -4,38 +4,66 @@ import { Button } from '@/components/ui/button';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { TrendingUp, TrendingDown, DollarSign, Target, Download } from 'lucide-react';
 import { MetricCard } from '@/components/dashboard/MetricCard';
+import { supabase } from '@/integrations/supabase/client';
+import { useQuery } from '@tanstack/react-query';
 
-const revenueData = [
-  { month: "Jan", revenue: 45000, cost: 32000, profit: 13000, margin: 28.9 },
-  { month: "Feb", revenue: 52000, cost: 38000, profit: 14000, margin: 26.9 },
-  { month: "Mar", revenue: 48000, cost: 35000, profit: 13000, margin: 27.1 },
-  { month: "Apr", revenue: 61000, cost: 42000, profit: 19000, margin: 31.1 },
-  { month: "May", revenue: 58000, cost: 40000, profit: 18000, margin: 31.0 },
-  { month: "Jun", revenue: 67000, cost: 45000, profit: 22000, margin: 32.8 },
-];
-
-const costBreakdown = [
-  { name: "Feed", value: 45, amount: 101250, color: "hsl(var(--primary))" },
-  { name: "Labor", value: 25, amount: 56250, color: "hsl(var(--accent))" },
-  { name: "Healthcare", value: 15, amount: 33750, color: "hsl(var(--warning))" },
-  { name: "Utilities", value: 10, amount: 22500, color: "hsl(var(--secondary))" },
-  { name: "Other", value: 5, amount: 11250, color: "hsl(var(--muted-foreground))" },
-];
-
-const profitMargins = [
-  { month: "Jan", margin: 28.9, target: 30 },
-  { month: "Feb", margin: 26.9, target: 30 },
-  { month: "Mar", margin: 27.1, target: 30 },
-  { month: "Apr", margin: 31.1, target: 30 },
-  { month: "May", margin: 31.0, target: 30 },
-  { month: "Jun", margin: 32.8, target: 30 },
+const costBreakdownColors = [
+  { name: "Feed", color: "hsl(var(--primary))" },
+  { name: "Labor", color: "hsl(var(--accent))" },
+  { name: "Healthcare", color: "hsl(var(--warning))" },
+  { name: "Utilities", color: "hsl(var(--secondary))" },
+  { name: "Other", color: "hsl(var(--muted-foreground))" },
 ];
 
 export const FinancialOverview = () => {
+  const { data: revenueData = [] } = useQuery({
+    queryKey: ['financial-data'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('financial_data')
+        .select('*')
+        .order('created_at', { ascending: true });
+      
+      if (error) throw error;
+      return data.map((item: any) => ({
+        month: item.month,
+        revenue: Number(item.revenue),
+        cost: Number(item.cost),
+        profit: Number(item.profit),
+        margin: Number(item.margin),
+      }));
+    },
+  });
+
+  const { data: costBreakdownData = [] } = useQuery({
+    queryKey: ['cost-breakdown'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('cost_breakdown')
+        .select('*');
+      
+      if (error) throw error;
+      return data.map((item: any) => ({
+        name: item.name,
+        value: item.value,
+        amount: Number(item.amount),
+        color: costBreakdownColors.find(c => c.name === item.name)?.color || "hsl(var(--muted-foreground))",
+      }));
+    },
+  });
+
   const totalRevenue = revenueData.reduce((sum, item) => sum + item.revenue, 0);
   const totalCosts = revenueData.reduce((sum, item) => sum + item.cost, 0);
   const totalProfit = totalRevenue - totalCosts;
-  const avgMargin = revenueData.reduce((sum, item) => sum + item.margin, 0) / revenueData.length;
+  const avgMargin = revenueData.length > 0 
+    ? revenueData.reduce((sum, item) => sum + item.margin, 0) / revenueData.length 
+    : 0;
+
+  const profitMargins = revenueData.map(item => ({
+    month: item.month,
+    margin: item.margin,
+    target: 30,
+  }));
 
   return (
     <div className="space-y-6">
@@ -118,14 +146,14 @@ export const FinancialOverview = () => {
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={costBreakdown}
+                  data={costBreakdownData}
                   cx="50%"
                   cy="50%"
                   outerRadius={100}
                   dataKey="value"
                   label={({ name, value }) => `${name}: ${value}%`}
                 >
-                  {costBreakdown.map((entry, index) => (
+                  {costBreakdownData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
@@ -182,7 +210,7 @@ export const FinancialOverview = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="space-y-3">
             <h4 className="font-medium text-foreground">Largest Cost Categories</h4>
-            {costBreakdown.slice(0, 3).map((cost, index) => (
+            {costBreakdownData.slice(0, 3).map((cost, index) => (
               <div key={cost.name} className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div 
