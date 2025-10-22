@@ -14,7 +14,183 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      alerts: {
+        Row: {
+          created_at: string
+          farm: string
+          id: string
+          message: string
+          read: boolean
+          title: string
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          farm: string
+          id?: string
+          message: string
+          read?: boolean
+          title: string
+          type: string
+        }
+        Update: {
+          created_at?: string
+          farm?: string
+          id?: string
+          message?: string
+          read?: boolean
+          title?: string
+          type?: string
+        }
+        Relationships: []
+      }
+      cost_breakdown: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          name: string
+          value: number
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          name: string
+          value: number
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          name?: string
+          value?: number
+        }
+        Relationships: []
+      }
+      dashboard_metrics: {
+        Row: {
+          change_percentage: string | null
+          change_type: string | null
+          created_at: string
+          id: string
+          metric_name: string
+          metric_value: string
+          updated_at: string
+        }
+        Insert: {
+          change_percentage?: string | null
+          change_type?: string | null
+          created_at?: string
+          id?: string
+          metric_name: string
+          metric_value: string
+          updated_at?: string
+        }
+        Update: {
+          change_percentage?: string | null
+          change_type?: string | null
+          created_at?: string
+          id?: string
+          metric_name?: string
+          metric_value?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      farm_performance: {
+        Row: {
+          avg_weight: number
+          cost_per_kg: number
+          created_at: string
+          farm_name: string
+          fcr: number
+          id: string
+          mortality: number
+          updated_at: string
+        }
+        Insert: {
+          avg_weight: number
+          cost_per_kg: number
+          created_at?: string
+          farm_name: string
+          fcr: number
+          id?: string
+          mortality: number
+          updated_at?: string
+        }
+        Update: {
+          avg_weight?: number
+          cost_per_kg?: number
+          created_at?: string
+          farm_name?: string
+          fcr?: number
+          id?: string
+          mortality?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      financial_data: {
+        Row: {
+          cost: number
+          created_at: string
+          id: string
+          margin: number
+          month: string
+          profit: number
+          revenue: number
+        }
+        Insert: {
+          cost: number
+          created_at?: string
+          id?: string
+          margin: number
+          month: string
+          profit: number
+          revenue: number
+        }
+        Update: {
+          cost?: number
+          created_at?: string
+          id?: string
+          margin?: number
+          month?: string
+          profit?: number
+          revenue?: number
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          email: string
+          full_name: string
+          id: string
+          role: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          role?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
