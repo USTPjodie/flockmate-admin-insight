@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           created_at: string
           farm: string
+          farm_id: string | null
           id: string
           message: string
           read: boolean
@@ -27,6 +28,7 @@ export type Database = {
         Insert: {
           created_at?: string
           farm: string
+          farm_id?: string | null
           id?: string
           message: string
           read?: boolean
@@ -36,13 +38,75 @@ export type Database = {
         Update: {
           created_at?: string
           farm?: string
+          farm_id?: string | null
           id?: string
           message?: string
           read?: boolean
           title?: string
           type?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "alerts_farm_id_fkey"
+            columns: ["farm_id"]
+            isOneToOne: false
+            referencedRelation: "farms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      batches: {
+        Row: {
+          bird_count: number
+          breed: string
+          created_at: string
+          current_age: number
+          current_weight: number
+          end_date: string | null
+          farm_id: string
+          id: string
+          start_date: string
+          status: string
+          target_weight: number
+          updated_at: string
+        }
+        Insert: {
+          bird_count: number
+          breed: string
+          created_at?: string
+          current_age?: number
+          current_weight?: number
+          end_date?: string | null
+          farm_id: string
+          id?: string
+          start_date: string
+          status?: string
+          target_weight: number
+          updated_at?: string
+        }
+        Update: {
+          bird_count?: number
+          breed?: string
+          created_at?: string
+          current_age?: number
+          current_weight?: number
+          end_date?: string | null
+          farm_id?: string
+          id?: string
+          start_date?: string
+          status?: string
+          target_weight?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "batches_farm_id_fkey"
+            columns: ["farm_id"]
+            isOneToOne: false
+            referencedRelation: "farms"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       cost_breakdown: {
         Row: {
@@ -98,41 +162,12 @@ export type Database = {
         }
         Relationships: []
       }
-      farms: {
-        Row: {
-          capacity: number
-          created_at: string
-          id: string
-          location: string
-          name: string
-          status: string
-          updated_at: string
-        }
-        Insert: {
-          capacity: number
-          created_at?: string
-          id?: string
-          location: string
-          name: string
-          status?: string
-          updated_at?: string
-        }
-        Update: {
-          capacity?: number
-          created_at?: string
-          id?: string
-          location?: string
-          name?: string
-          status?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       farm_performance: {
         Row: {
           avg_weight: number
           cost_per_kg: number
           created_at: string
+          farm_id: string | null
           farm_name: string
           fcr: number
           id: string
@@ -143,6 +178,7 @@ export type Database = {
           avg_weight: number
           cost_per_kg: number
           created_at?: string
+          farm_id?: string | null
           farm_name: string
           fcr: number
           id?: string
@@ -153,10 +189,55 @@ export type Database = {
           avg_weight?: number
           cost_per_kg?: number
           created_at?: string
+          farm_id?: string | null
           farm_name?: string
           fcr?: number
           id?: string
           mortality?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "farm_performance_farm_id_fkey"
+            columns: ["farm_id"]
+            isOneToOne: false
+            referencedRelation: "farms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      farms: {
+        Row: {
+          capacity: number
+          coordinates: Json | null
+          created_at: string
+          id: string
+          location: string
+          manager: string
+          name: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          capacity: number
+          coordinates?: Json | null
+          created_at?: string
+          id?: string
+          location: string
+          manager: string
+          name: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          capacity?: number
+          coordinates?: Json | null
+          created_at?: string
+          id?: string
+          location?: string
+          manager?: string
+          name?: string
+          status?: string
           updated_at?: string
         }
         Relationships: []
@@ -221,15 +302,84 @@ export type Database = {
         }
         Relationships: []
       }
+      reports: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          file_url: string | null
+          format: string
+          generated_at: string
+          id: string
+          parameters: Json | null
+          size: string | null
+          status: string
+          title: string
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          file_url?: string | null
+          format: string
+          generated_at?: string
+          id?: string
+          parameters?: Json | null
+          size?: string | null
+          status?: string
+          title: string
+          type: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          file_url?: string | null
+          format?: string
+          generated_at?: string
+          id?: string
+          parameters?: Json | null
+          size?: string | null
+          status?: string
+          title?: string
+          type?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "manager" | "technician"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -356,6 +506,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "manager", "technician"],
+    },
   },
 } as const
