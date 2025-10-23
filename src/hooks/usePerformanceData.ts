@@ -1,5 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import type { Tables } from '@/integrations/supabase/types';
+
+export type PerformanceData = Tables<'farm_performance'>;
 
 export const usePerformanceData = () => {
   const { data: farmPerformance = [], isLoading } = useQuery({
@@ -11,7 +14,7 @@ export const usePerformanceData = () => {
         .order('created_at', { ascending: false });
       
       if (error) throw error;
-      return data;
+      return data as PerformanceData[];
     },
   });
 

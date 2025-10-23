@@ -1,128 +1,55 @@
-# Flockmate Database Schema
+# Flockmate Supabase Database Setup
 
-This directory contains the complete database schema for the Flockmate poultry farm management system.
+This directory contains all the necessary SQL files to set up your Flockmate poultry farm management system database in Supabase.
 
-## Schema Overview
+## Files Overview
 
-The Flockmate database consists of 6 main tables:
+1. **[complete-schema.sql](file:///c%3A/Users/JODIE/Desktop/React/flockmate-admin-insight/supabase/schema.sql)** - Contains the complete database schema including:
+   - All table definitions
+   - Row Level Security (RLS) policies
+   - Functions and triggers
+   - Proper security configurations
 
-1. **profiles** - User profiles and roles
-2. **financial_data** - Financial metrics and profitability data
-3. **cost_breakdown** - Detailed cost analysis
-4. **farm_performance** - Farm performance metrics (FCR, mortality, etc.)
-5. **alerts** - System alerts and notifications
-6. **dashboard_metrics** - Key dashboard metrics and KPIs
+2. **[sample-data.sql](file:///c%3A/Users/JODIE/Desktop/React/flockmate-admin-insight/supabase/sample-data.sql)** - Contains sample data for testing and development
 
-## Files
+3. **[setup-admin-user.sql](file:///c%3A/Users/JODIE/Desktop/React/flockmate-admin-insight/supabase/setup-admin-user.sql)** - Script to set up the initial admin user
 
-- `schema.sql` - Complete database schema with all tables, constraints, and policies
-- `make-user-admin.sql` - Script to make a specific user an admin
-- `setup-admin-user.sql` - Comprehensive script to set up an admin user
-- `migrations/` - Migration files for incremental schema updates
+4. **Migration files** - Incremental changes to the schema over time
 
-## Key Features
+## Setup Instructions
 
-### Row Level Security (RLS)
-All tables have Row Level Security enabled with policies that:
-- Restrict access to authenticated users only
-- Allow admins to manage all data
-- Provide appropriate access controls for different user roles
+### 1. Run the Complete Schema
 
-### Triggers
-- Automatic profile creation when new users sign up
-- Automatic timestamp updates for modified records
+Execute [complete-schema.sql](file:///c%3A/Users/JODIE/Desktop/React/flockmate-admin-insight/supabase/schema.sql) in your Supabase SQL editor to create all tables, functions, and policies.
 
-### Data Integrity
-- Foreign key constraints
-- Check constraints for data validation
-- Default values for timestamps and UUIDs
+### 2. Set Up Admin User
 
-## Applying the Schema
+Run [setup-admin-user.sql](file:///c%3A/Users/JODIE/Desktop/React/flockmate-admin-insight/supabase/setup-admin-user.sql) to create or update your admin user.
 
-To apply this schema to a new Supabase project:
+### 3. (Optional) Add Sample Data
 
-1. Create a new Supabase project
-2. Go to the SQL editor in the Supabase dashboard
-3. Copy and paste the contents of `schema.sql`
-4. Run the SQL to create all tables and policies
+For development/testing purposes, run [sample-data.sql](file:///c%3A/Users/JODIE/Desktop/React/flockmate-admin-insight/supabase/sample-data.sql) to populate tables with sample data.
 
-## Setting Up Admin Users
+## Database Schema
 
-To make a specific user an admin:
+The Flockmate database consists of the following tables:
 
-1. Use `make-user-admin.sql` to update an existing user's role to 'admin'
-2. Use `setup-admin-user.sql` for a more comprehensive setup including verification
+- **profiles** - User information and roles
+- **financial_data** - Revenue, costs, and profit data
+- **cost_breakdown** - Detailed cost breakdown information
+- **farm_performance** - Farm performance metrics (FCR, mortality, etc.)
+- **alerts** - System alerts and notifications
+- **dashboard_metrics** - Key metrics displayed on the dashboard
+- **farms** - Farm information and details
 
-Example usage:
-```sql
--- Make jodierey.fernandez@ustp.edu.ph an admin
-INSERT INTO public.profiles (id, email, full_name, role)
-VALUES (
-  'c2b0d1ef-6bc0-4aaf-aba3-e0353bbfddff',
-  'jodierey.fernandez@ustp.edu.ph',
-  'JODIE Rey Fernandez',
-  'admin'
-)
-ON CONFLICT (id) DO UPDATE SET role = 'admin';
-```
+## Security
 
-## Tables
+All tables have Row Level Security (RLS) enabled with policies that restrict access based on user roles. Only admin users can access all data, while other roles have limited access as defined in the policies.
 
-### profiles
-Stores user information and roles:
-- `id` (UUID) - Primary key, references auth.users
-- `email` (TEXT) - User email
-- `full_name` (TEXT) - User's full name
-- `role` (TEXT) - User role (admin, manager, operator)
-- `avatar_url` (TEXT) - URL to user's avatar
-- `created_at` (TIMESTAMPTZ) - Record creation timestamp
-- `updated_at` (TIMESTAMPTZ) - Record update timestamp
+## Functions and Triggers
 
-### financial_data
-Stores financial metrics:
-- `id` (UUID) - Primary key
-- `month` (TEXT) - Month identifier
-- `revenue` (DECIMAL) - Revenue amount
-- `cost` (DECIMAL) - Cost amount
-- `profit` (DECIMAL) - Profit amount
-- `margin` (DECIMAL) - Profit margin
-- `created_at` (TIMESTAMPTZ) - Record creation timestamp
+- **handle_new_user()** - Automatically creates a profile when a new user signs up
+- **update_updated_at()** - Updates the `updated_at` timestamp when records are modified
+- **update_farms_updated_at()** - Updates the `updated_at` timestamp for farms table
 
-### cost_breakdown
-Stores detailed cost analysis:
-- `id` (UUID) - Primary key
-- `name` (TEXT) - Cost category name
-- `value` (INTEGER) - Percentage value
-- `amount` (DECIMAL) - Cost amount
-- `created_at` (TIMESTAMPTZ) - Record creation timestamp
-
-### farm_performance
-Stores farm performance metrics:
-- `id` (UUID) - Primary key
-- `farm_name` (TEXT) - Name of the farm
-- `fcr` (DECIMAL) - Feed Conversion Ratio
-- `mortality` (DECIMAL) - Mortality rate
-- `avg_weight` (DECIMAL) - Average weight
-- `cost_per_kg` (DECIMAL) - Cost per kilogram
-- `created_at` (TIMESTAMPTZ) - Record creation timestamp
-- `updated_at` (TIMESTAMPTZ) - Record update timestamp
-
-### alerts
-Stores system alerts:
-- `id` (UUID) - Primary key
-- `type` (TEXT) - Alert type (critical, warning, info, success)
-- `title` (TEXT) - Alert title
-- `message` (TEXT) - Alert message
-- `farm` (TEXT) - Associated farm
-- `created_at` (TIMESTAMPTZ) - Record creation timestamp
-- `read` (BOOLEAN) - Read status
-
-### dashboard_metrics
-Stores dashboard KPIs:
-- `id` (UUID) - Primary key
-- `metric_name` (TEXT) - Name of the metric
-- `metric_value` (TEXT) - Metric value
-- `change_percentage` (TEXT) - Percentage change
-- `change_type` (TEXT) - Type of change (positive, negative, neutral)
-- `created_at` (TIMESTAMPTZ) - Record creation timestamp
-- `updated_at` (TIMESTAMPTZ) - Record update timestamp
+These functions are triggered automatically and should not require manual intervention.

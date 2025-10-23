@@ -1,10 +1,11 @@
-import { BarChart3, Users, TrendingUp, Settings, Home, FileText, PieChart, Database } from "lucide-react";
+import { BarChart3, Users, TrendingUp, Settings, Home, FileText, PieChart, Database, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLocation } from "react-router-dom";
 import { Link } from "react-router-dom";
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: Home },
+  { name: "Farm Management", href: "/farms", icon: MapPin },
   { name: "Financial Analytics", href: "/analytics", icon: TrendingUp },
   { name: "Farm Performance", href: "/performance", icon: BarChart3 },
   { name: "Batch Reports", href: "/reports", icon: FileText },

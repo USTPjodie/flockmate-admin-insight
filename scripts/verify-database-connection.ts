@@ -1,7 +1,36 @@
-import { supabase } from '../src/integrations/supabase/client';
+// @ts-nocheck
+import { createClient } from '@supabase/supabase-js';
+import { config } from 'dotenv';
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
+
+// Load environment variables
+config();
+
+// Try to read from .env file directly as fallback
+let envConfig = {};
+try {
+  const envPath = resolve(process.cwd(), '.env');
+  const envContent = readFileSync(envPath, 'utf8');
+  envContent.split('\n').forEach(line => {
+    const [key, value] = line.split('=');
+    if (key && value) {
+      envConfig[key.trim()] = value.trim().replace(/"/g, '');
+    }
+  });
+} catch (error) {
+  console.log('Could not read .env file directly');
+}
+
+// Get environment variables with fallbacks
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL || envConfig.VITE_SUPABASE_URL || 'https://weonltiidlnpgvanwvba.supabase.co';
+const SUPABASE_KEY = process.env.VITE_SUPABASE_PUBLISHABLE_KEY || envConfig.VITE_SUPABASE_PUBLISHABLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlb25sdGlpZGxucGd2YW53dmJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjExNzgzMzAsImV4cCI6MjA3Njc1NDMzMH0.0DS5-ILmlYMYygWrJKfyv2qcS-5kS505KmM4vZPKtX8';
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 async function verifyDatabaseConnection() {
   console.log('🔍 Verifying database connection...');
+  console.log('  Supabase URL:', SUPABASE_URL);
   
   try {
     // Test 1: Check if we can connect to the database
@@ -26,6 +55,7 @@ async function verifyDatabaseConnection() {
     
     if (profilesError) {
       console.log('❌ Profiles table access error:', profilesError.message);
+      console.log('   Error details:', profilesError);
     } else {
       console.log('✅ Profiles table accessible');
       if (profilesData && profilesData.length > 0) {
@@ -36,7 +66,30 @@ async function verifyDatabaseConnection() {
       }
     }
     
-    // Test 3: Check if we can access other tables
+    // Test 3: Check if we can access the farms table specifically
+    console.log('\n🔍 Checking farms table...');
+    const { data: farmsData, error: farmsError } = await supabase
+      .from('farms')
+      .select('*')
+      .limit(5);
+    
+    if (farmsError) {
+      console.log('❌ Farms table access error:', farmsError.message);
+      console.log('   Error details:', farmsError);
+    } else {
+      console.log('✅ Farms table accessible');
+      if (farmsData && farmsData.length > 0) {
+        console.log(`✅ Found ${farmsData.length} farm(s) in database`);
+        console.log('  Sample farms:');
+        farmsData.forEach((farm, index) => {
+          console.log(`    ${index + 1}. ${farm.name} (${farm.location}) - Capacity: ${farm.capacity}, Status: ${farm.status}`);
+        });
+      } else {
+        console.log('ℹ️  No farms found in database');
+      }
+    }
+    
+    // Test 4: Check if we can access other tables
     console.log('\n🔍 Checking other tables...');
     
     // Check financial_data table
@@ -119,24 +172,22 @@ async function verifyDatabaseConnection() {
       console.log('❌ cost_breakdown check failed:', error);
     }
     
-    // Test 4: Check environment variables (we'll read them from the process.env)
+    // Test 5: Check environment variables
     console.log('\n🔍 Checking environment configuration...');
-    const supabaseUrl = process.env.VITE_SUPABASE_URL;
-    const projectId = process.env.VITE_SUPABASE_PROJECT_ID;
+    const projectId = process.env.VITE_SUPABASE_PROJECT_ID || envConfig.VITE_SUPABASE_PROJECT_ID;
     
-    if (supabaseUrl && projectId) {
+    if (projectId) {
       console.log('✅ Environment variables found');
-      console.log('  Project URL:', supabaseUrl);
       console.log('  Project ID:', projectId);
       
       // Check if they match our expected configuration
-      if (supabaseUrl.includes('weonltiidlnpgvanwvba')) {
+      if (SUPABASE_URL.includes('weonltiidlnpgvanwvba')) {
         console.log('✅ Connected to the correct Supabase project');
       } else {
         console.log('⚠️  Connected to a different Supabase project than expected');
       }
     } else {
-      console.log('ℹ️  Environment variables not available in this context');
+      console.log('ℹ️  Some environment variables not available in this context');
     }
     
     console.log('\n✅ Database connection verification complete');

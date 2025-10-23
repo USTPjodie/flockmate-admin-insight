@@ -16,7 +16,8 @@ const Comparisons = lazy(() => import("./pages/Comparisons"));
 const Export = lazy(() => import("./pages/Export"));
 const Users = lazy(() => import("./pages/Users"));
 const Settings = lazy(() => import("./pages/Settings"));
-const Debug = lazy(() => import("./pages/Debug"));
+const Farms = lazy(() => import("./pages/Farms"));
+const Debug = lazy(() => import("./pages/Debug").then(module => ({ default: module.Debug })));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Loading component
@@ -54,6 +55,7 @@ const AppContent = () => {
           <Route path="/reports" element={<Reports />} />
           <Route path="/comparisons" element={<Comparisons />} />
           <Route path="/export" element={<Export />} />
+          <Route path="/farms" element={<Farms />} />
           <Route path="/users" element={<Users />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/debug" element={<Debug />} />

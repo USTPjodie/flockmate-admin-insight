@@ -26,6 +26,20 @@ This project now uses a new Supabase database:
 
 Environment variables have been updated in the `.env` file to reflect this change.
 
+## Database Setup and Management
+
+This project includes several utility scripts for database management in the `scripts/` directory:
+
+### Available Scripts
+
+- `npm run verify-db` - Verifies database connectivity and table accessibility
+- `npm run verify-schema-db` - Checks that all required tables exist in the database
+- `npm run populate-db` - Populates the database with sample data (requires Service Role Key)
+- `npm run create-admin` - Creates an admin user for the application (requires Service Role Key)
+- `npm run get-service-key` - Displays instructions for obtaining the Supabase Service Role Key
+
+See `scripts/README.md` for detailed information about each script.
+
 ## Theme Configuration
 
 The design system is centralized in `src/config/theme.ts` for easy customization of colors, spacing, typography, and more.

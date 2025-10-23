@@ -6,26 +6,21 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Settings as SettingsIcon, Globe, Bell, Shield, Database, Palette, Save, RefreshCw } from "lucide-react";
+import { Settings as SettingsIcon, Globe, Bell, Shield, Database, Palette, Save, RefreshCw, MapPin } from "lucide-react";
 import { useState } from "react";
-import { useFarms } from "@/hooks/useFarms";
-import { AddFarmDialog } from "@/components/farms/AddFarmDialog";
+import { Link } from "react-router-dom";
 
 const Settings = () => {
-  const { farms, isLoading } = useFarms();
-  const [isAddFarmDialogOpen, setIsAddFarmDialogOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("general");
 
   return (
     <DashboardLayout>
-      <AddFarmDialog open={isAddFarmDialogOpen} onOpenChange={setIsAddFarmDialogOpen} />
-      
       <div className="space-y-6">
         {/* Page Header */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-foreground">System Settings</h1>
-            <p className="text-muted-foreground">Configure system preferences and manage farm locations</p>
+            <p className="text-muted-foreground">Configure system preferences and manage application settings</p>
           </div>
           <div className="flex items-center space-x-3">
             <Button variant="outline" size="sm">
@@ -39,10 +34,9 @@ const Settings = () => {
           </div>
         </div>
 
-        <Tabs defaultValue="general" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="general">General</TabsTrigger>
-            <TabsTrigger value="farms">Farms</TabsTrigger>
             <TabsTrigger value="notifications">Notifications</TabsTrigger>
             <TabsTrigger value="security">Security</TabsTrigger>
             <TabsTrigger value="data">Data & Backup</TabsTrigger>
@@ -130,57 +124,23 @@ const Settings = () => {
                   </div>
                 </div>
               </Card>
-            </div>
-          </TabsContent>
-
-          {/* Farm Management */}
-          <TabsContent value="farms">
-            <Card className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-semibold text-foreground">Farm Locations</h3>
-                <Button onClick={() => setIsAddFarmDialogOpen(true)}>Add New Farm</Button>
-              </div>
               
-              {isLoading ? (
-                <div className="flex items-center justify-center h-32">
-                  <p className="text-muted-foreground">Loading farms...</p>
+              {/* Farm Management Redirect */}
+              <Card className="p-6">
+                <div className="flex items-center mb-4">
+                  <MapPin className="h-5 w-5 text-primary mr-2" />
+                  <h3 className="text-lg font-semibold text-foreground">Farm Management</h3>
                 </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b border-border">
-                        <th className="text-left py-3 px-4 font-medium text-muted-foreground">Farm Name</th>
-                        <th className="text-left py-3 px-4 font-medium text-muted-foreground">Location</th>
-                        <th className="text-center py-3 px-4 font-medium text-muted-foreground">Capacity</th>
-                        <th className="text-center py-3 px-4 font-medium text-muted-foreground">Status</th>
-                        <th className="text-center py-3 px-4 font-medium text-muted-foreground">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {farms.map((farm) => (
-                        <tr key={farm.id} className="border-b border-border hover:bg-muted/50">
-                          <td className="py-4 px-4 font-medium text-foreground">{farm.name}</td>
-                          <td className="py-4 px-4 text-foreground">{farm.location}</td>
-                          <td className="py-4 px-4 text-center text-foreground">{farm.capacity.toLocaleString()}</td>
-                          <td className="py-4 px-4 text-center">
-                            <Badge variant={farm.status === "active" ? "default" : "secondary"}>
-                              {farm.status}
-                            </Badge>
-                          </td>
-                          <td className="py-4 px-4 text-center">
-                            <div className="flex items-center justify-center space-x-2">
-                              <Button variant="ghost" size="sm">Edit</Button>
-                              <Button variant="ghost" size="sm">Deactivate</Button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                <div className="space-y-4">
+                  <p className="text-muted-foreground">
+                    Farm locations and management have been moved to a dedicated section for better organization.
+                  </p>
+                  <Button asChild>
+                    <Link to="/farms">Go to Farm Management</Link>
+                  </Button>
                 </div>
-              )}
-            </Card>
+              </Card>
+            </div>
           </TabsContent>
 
           {/* Notifications */}
@@ -201,24 +161,24 @@ const Settings = () => {
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
-                      <Label htmlFor="feed-alerts">Low Feed Inventory Alerts</Label>
-                      <p className="text-sm text-muted-foreground">Alert when feed runs low</p>
-                    </div>
-                    <Switch id="feed-alerts" defaultChecked />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label htmlFor="fcr-alerts">Poor FCR Performance Alerts</Label>
-                      <p className="text-sm text-muted-foreground">Alert when FCR exceeds targets</p>
+                      <Label htmlFor="fcr-alerts">High FCR Alerts</Label>
+                      <p className="text-sm text-muted-foreground">Alert when FCR exceeds target</p>
                     </div>
                     <Switch id="fcr-alerts" defaultChecked />
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
-                      <Label htmlFor="batch-alerts">Batch Completion Alerts</Label>
-                      <p className="text-sm text-muted-foreground">Alert when batches are sold</p>
+                      <Label htmlFor="weight-alerts">Low Weight Alerts</Label>
+                      <p className="text-sm text-muted-foreground">Alert when weight is below target</p>
                     </div>
-                    <Switch id="batch-alerts" defaultChecked />
+                    <Switch id="weight-alerts" />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label htmlFor="feed-alerts">Feed Inventory Alerts</Label>
+                      <p className="text-sm text-muted-foreground">Alert when feed inventory is low</p>
+                    </div>
+                    <Switch id="feed-alerts" defaultChecked />
                   </div>
                 </div>
               </Card>
@@ -230,35 +190,34 @@ const Settings = () => {
                 </div>
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="email-notifications">Email Notifications</Label>
-                    <Select defaultValue="immediate">
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="immediate">Immediate</SelectItem>
-                        <SelectItem value="daily">Daily Digest</SelectItem>
-                        <SelectItem value="weekly">Weekly Summary</SelectItem>
-                        <SelectItem value="disabled">Disabled</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Label>Email Notifications</Label>
+                    <div className="space-y-2 mt-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-foreground">Critical Alerts</span>
+                        <Switch defaultChecked />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-foreground">Performance Reports</span>
+                        <Switch defaultChecked />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-foreground">System Updates</span>
+                        <Switch />
+                      </div>
+                    </div>
                   </div>
                   <div>
-                    <Label htmlFor="notification-email">Notification Email</Label>
-                    <Input id="notification-email" type="email" defaultValue="admin@flockmate.com" />
-                  </div>
-                  <div>
-                    <Label htmlFor="alert-threshold">Alert Threshold Level</Label>
-                    <Select defaultValue="medium">
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="low">Low - All alerts</SelectItem>
-                        <SelectItem value="medium">Medium - Important alerts</SelectItem>
-                        <SelectItem value="high">High - Critical alerts only</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Label>Push Notifications</Label>
+                    <div className="space-y-2 mt-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-foreground">Mobile App</span>
+                        <Switch defaultChecked />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-foreground">Desktop</span>
+                        <Switch />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </Card>
@@ -271,32 +230,26 @@ const Settings = () => {
               <Card className="p-6">
                 <div className="flex items-center mb-4">
                   <Shield className="h-5 w-5 text-primary mr-2" />
-                  <h3 className="text-lg font-semibold text-foreground">Authentication Settings</h3>
+                  <h3 className="text-lg font-semibold text-foreground">Authentication</h3>
                 </div>
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label htmlFor="two-factor">Two-Factor Authentication</Label>
-                      <p className="text-sm text-muted-foreground">Require 2FA for all admin users</p>
-                    </div>
-                    <Switch id="two-factor" />
-                  </div>
                   <div>
                     <Label htmlFor="session-timeout">Session Timeout (minutes)</Label>
                     <Input id="session-timeout" type="number" defaultValue="30" />
                   </div>
-                  <div>
-                    <Label htmlFor="password-policy">Password Policy</Label>
-                    <Select defaultValue="strong">
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="basic">Basic - 8 characters</SelectItem>
-                        <SelectItem value="strong">Strong - 12+ chars, mixed case</SelectItem>
-                        <SelectItem value="enterprise">Enterprise - 16+ chars, complex</SelectItem>
-                      </SelectContent>
-                    </Select>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label>Two-Factor Authentication</Label>
+                      <p className="text-sm text-muted-foreground">Require 2FA for all admin users</p>
+                    </div>
+                    <Switch />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label>Single Sign-On</Label>
+                      <p className="text-sm text-muted-foreground">Enable SSO integration</p>
+                    </div>
+                    <Switch />
                   </div>
                 </div>
               </Card>
@@ -304,26 +257,29 @@ const Settings = () => {
               <Card className="p-6">
                 <div className="flex items-center mb-4">
                   <Shield className="h-5 w-5 text-primary mr-2" />
-                  <h3 className="text-lg font-semibold text-foreground">Access Control</h3>
+                  <h3 className="text-lg font-semibold text-foreground">Data Security</h3>
                 </div>
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <Label htmlFor="ip-restriction">IP Address Restrictions</Label>
-                      <p className="text-sm text-muted-foreground">Limit access to specific IP ranges</p>
+                      <Label>Encryption at Rest</Label>
+                      <p className="text-sm text-muted-foreground">Encrypt all data stored in database</p>
                     </div>
-                    <Switch id="ip-restriction" />
+                    <Switch defaultChecked />
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
-                      <Label htmlFor="audit-logging">Audit Logging</Label>
-                      <p className="text-sm text-muted-foreground">Log all user actions and changes</p>
+                      <Label>Encryption in Transit</Label>
+                      <p className="text-sm text-muted-foreground">Encrypt all data in transit</p>
                     </div>
-                    <Switch id="audit-logging" defaultChecked />
+                    <Switch defaultChecked />
                   </div>
-                  <div>
-                    <Label htmlFor="failed-attempts">Max Failed Login Attempts</Label>
-                    <Input id="failed-attempts" type="number" defaultValue="5" />
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label>Regular Security Audits</Label>
+                      <p className="text-sm text-muted-foreground">Perform weekly security scans</p>
+                    </div>
+                    <Switch defaultChecked />
                   </div>
                 </div>
               </Card>
@@ -336,30 +292,9 @@ const Settings = () => {
               <Card className="p-6">
                 <div className="flex items-center mb-4">
                   <Database className="h-5 w-5 text-primary mr-2" />
-                  <h3 className="text-lg font-semibold text-foreground">Data Management</h3>
+                  <h3 className="text-lg font-semibold text-foreground">Backup Settings</h3>
                 </div>
                 <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="data-retention">Data Retention Period</Label>
-                    <Select defaultValue="2years">
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="1year">1 Year</SelectItem>
-                        <SelectItem value="2years">2 Years</SelectItem>
-                        <SelectItem value="5years">5 Years</SelectItem>
-                        <SelectItem value="indefinite">Indefinite</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label htmlFor="auto-backup">Automatic Backups</Label>
-                      <p className="text-sm text-muted-foreground">Daily automated data backups</p>
-                    </div>
-                    <Switch id="auto-backup" defaultChecked />
-                  </div>
                   <div>
                     <Label htmlFor="backup-frequency">Backup Frequency</Label>
                     <Select defaultValue="daily">
@@ -370,6 +305,104 @@ const Settings = () => {
                         <SelectItem value="hourly">Hourly</SelectItem>
                         <SelectItem value="daily">Daily</SelectItem>
                         <SelectItem value="weekly">Weekly</SelectItem>
+                        <SelectItem value="monthly">Monthly</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="retention-period">Retention Period</Label>
+                    <Select defaultValue="90">
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="30">30 days</SelectItem>
+                        <SelectItem value="90">90 days</SelectItem>
+                        <SelectItem value="180">180 days</SelectItem>
+                        <SelectItem value="365">1 year</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label>Automatic Backups</Label>
+                      <p className="text-sm text-muted-foreground">Enable automated backup process</p>
+                    </div>
+                    <Switch defaultChecked />
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="p-6">
+                <div className="flex items-center mb-4">
+                  <Database className="h-5 w-5 text-primary mr-2" />
+                  <h3 className="text-lg font-semibold text-foreground">Data Management</h3>
+                </div>
+                <div className="space-y-4">
+                  <div>
+                    <Label>Data Export Format</Label>
+                    <Select defaultValue="csv">
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="csv">CSV</SelectItem>
+                        <SelectItem value="xlsx">Excel (XLSX)</SelectItem>
+                        <SelectItem value="json">JSON</SelectItem>
+                        <SelectItem value="pdf">PDF</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label>Data Anonymization</Label>
+                      <p className="text-sm text-muted-foreground">Anonymize data for testing</p>
+                    </div>
+                    <Switch />
+                  </div>
+                  <div className="pt-4">
+                    <Button variant="outline" className="w-full">
+                      Export Current Data
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+            </div>
+          </TabsContent>
+
+          {/* Appearance */}
+          <TabsContent value="appearance">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card className="p-6">
+                <div className="flex items-center mb-4">
+                  <Palette className="h-5 w-5 text-primary mr-2" />
+                  <h3 className="text-lg font-semibold text-foreground">Theme Settings</h3>
+                </div>
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="theme">Theme</Label>
+                    <Select defaultValue="system">
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="light">Light</SelectItem>
+                        <SelectItem value="dark">Dark</SelectItem>
+                        <SelectItem value="system">System Default</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="color-scheme">Color Scheme</Label>
+                    <Select defaultValue="default">
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="default">Default (Blue)</SelectItem>
+                        <SelectItem value="green">Green</SelectItem>
+                        <SelectItem value="purple">Purple</SelectItem>
+                        <SelectItem value="orange">Orange</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -378,82 +411,34 @@ const Settings = () => {
 
               <Card className="p-6">
                 <div className="flex items-center mb-4">
-                  <Database className="h-5 w-5 text-primary mr-2" />
-                  <h3 className="text-lg font-semibold text-foreground">Backup Status</h3>
+                  <Palette className="h-5 w-5 text-primary mr-2" />
+                  <h3 className="text-lg font-semibold text-foreground">Display Options</h3>
                 </div>
                 <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Last Backup</span>
-                    <span className="text-sm font-medium text-foreground">2024-03-31 03:00 AM</span>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label>Compact View</Label>
+                      <p className="text-sm text-muted-foreground">Reduce spacing for more content</p>
+                    </div>
+                    <Switch />
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Backup Size</span>
-                    <span className="text-sm font-medium text-foreground">2.3 GB</span>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label>Show Tooltips</Label>
+                      <p className="text-sm text-muted-foreground">Display helpful tooltips</p>
+                    </div>
+                    <Switch defaultChecked />
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Status</span>
-                    <Badge className="bg-success text-success-foreground">Healthy</Badge>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label>Animations</Label>
+                      <p className="text-sm text-muted-foreground">Enable UI animations</p>
+                    </div>
+                    <Switch defaultChecked />
                   </div>
-                  <Button className="w-full">Manual Backup Now</Button>
                 </div>
               </Card>
             </div>
-          </TabsContent>
-
-          {/* Appearance */}
-          <TabsContent value="appearance">
-            <Card className="p-6">
-              <div className="flex items-center mb-4">
-                <Palette className="h-5 w-5 text-primary mr-2" />
-                <h3 className="text-lg font-semibold text-foreground">Theme & Display</h3>
-              </div>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="theme">Color Theme</Label>
-                    <Select defaultValue="light">
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="light">Light Mode</SelectItem>
-                        <SelectItem value="dark">Dark Mode</SelectItem>
-                        <SelectItem value="auto">Auto (System)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="density">Interface Density</Label>
-                    <Select defaultValue="comfortable">
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="compact">Compact</SelectItem>
-                        <SelectItem value="comfortable">Comfortable</SelectItem>
-                        <SelectItem value="spacious">Spacious</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label htmlFor="animations">Enable Animations</Label>
-                      <p className="text-sm text-muted-foreground">Smooth transitions and effects</p>
-                    </div>
-                    <Switch id="animations" defaultChecked />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label htmlFor="high-contrast">High Contrast Mode</Label>
-                      <p className="text-sm text-muted-foreground">Improve readability</p>
-                    </div>
-                    <Switch id="high-contrast" />
-                  </div>
-                </div>
-              </div>
-            </Card>
           </TabsContent>
         </Tabs>
       </div>

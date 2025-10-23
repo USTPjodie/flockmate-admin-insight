@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -41,13 +41,14 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-interface AddFarmDialogProps {
+interface EditFarmDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  farm?: Farm | null;
 }
 
-export const AddFarmDialog = ({ open, onOpenChange }: AddFarmDialogProps) => {
-  const { addFarm } = useFarms();
+export const EditFarmDialog = ({ open, onOpenChange, farm }: EditFarmDialogProps) => {
+  const { updateFarm } = useFarms();
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<FormData>({
@@ -60,13 +61,27 @@ export const AddFarmDialog = ({ open, onOpenChange }: AddFarmDialogProps) => {
     },
   });
 
+  // Set form values when farm data is provided
+  useEffect(() => {
+    if (farm && open) {
+      form.reset({
+        name: farm.name,
+        location: farm.location,
+        capacity: farm.capacity,
+        status: farm.status as "active" | "inactive" | "maintenance",
+      });
+    }
+  }, [farm, open, form]);
+
   const onSubmit = (data: FormData) => {
+    if (!farm) return;
+    
     setIsLoading(true);
     console.log("Form submitted with data:", data);
-    addFarm(data as Omit<Farm, 'id' | 'created_at' | 'updated_at'>, {
+    
+    updateFarm({ id: farm.id, updates: data }, {
       onSuccess: () => {
-        console.log("Farm added successfully");
-        form.reset();
+        console.log("Farm updated successfully");
         onOpenChange(false);
         setIsLoading(false);
       },
@@ -81,7 +96,7 @@ export const AddFarmDialog = ({ open, onOpenChange }: AddFarmDialogProps) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add New Farm</DialogTitle>
+          <DialogTitle>Edit Farm</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -135,7 +150,7 @@ export const AddFarmDialog = ({ open, onOpenChange }: AddFarmDialogProps) => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Status</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a status" />
@@ -156,7 +171,7 @@ export const AddFarmDialog = ({ open, onOpenChange }: AddFarmDialogProps) => {
                 Cancel
               </Button>
               <Button type="submit" disabled={isLoading}>
-                {isLoading ? "Adding..." : "Add Farm"}
+                {isLoading ? "Saving..." : "Save Changes"}
               </Button>
             </DialogFooter>
           </form>

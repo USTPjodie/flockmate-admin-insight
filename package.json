@@ -12,6 +12,10 @@
     "verify-schema": "npx tsx scripts/verify-schema.ts",
     "test-admin": "npx tsx scripts/test-admin-setup.ts",
     "verify-db": "npx tsx scripts/verify-database-connection.ts",
+    "verify-schema-db": "npx tsx scripts/verify-database-schema.ts",
+    "populate-db": "npx tsx scripts/populate-sample-data.ts",
+    "create-admin": "npx tsx scripts/create-admin-user.ts",
+    "get-service-key": "npx tsx scripts/get-service-role-key.ts",
     "verify-sync": "npx tsx scripts/verify-data-sync.ts",
     "test-hooks": "npx tsx scripts/test-frontend-hooks.ts"
   },

@@ -8,6 +8,7 @@ export const DatabaseStatus = () => {
     connected: false,
     authenticated: false,
     profilesCount: 0,
+    farmsCount: 0,
     error: null as string | null,
     loading: true
   });
@@ -28,10 +29,21 @@ export const DatabaseStatus = () => {
           throw new Error(`Profiles access error: ${profilesError.message}`);
         }
         
+        // Check if we can access farms table
+        const { data: farms, error: farmsError } = await supabase
+          .from('farms')
+          .select('id')
+          .limit(10);
+        
+        if (farmsError) {
+          throw new Error(`Farms access error: ${farmsError.message}`);
+        }
+        
         setStatus({
           connected: true,
           authenticated: !!session,
           profilesCount: profiles?.length || 0,
+          farmsCount: farms?.length || 0,
           error: null,
           loading: false
         });
@@ -40,6 +52,7 @@ export const DatabaseStatus = () => {
           connected: false,
           authenticated: false,
           profilesCount: 0,
+          farmsCount: 0,
           error: error.message,
           loading: false
         });
@@ -84,6 +97,10 @@ export const DatabaseStatus = () => {
           <div className="flex justify-between">
             <span>Profiles in DB:</span>
             <span>{status.profilesCount}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Farms in DB:</span>
+            <span>{status.farmsCount}</span>
           </div>
           {status.error && (
             <div className="mt-2 p-2 bg-red-100 text-red-800 rounded">

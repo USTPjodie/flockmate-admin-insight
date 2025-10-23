@@ -1,14 +1,17 @@
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { MetricCard } from "@/components/dashboard/MetricCard";
 import { PerformanceChart } from "@/components/dashboard/PerformanceChart";
-import { AlertsFeed } from "@/components/dashboard/AlertsFeed";
+// Removed AlertsFeed import since it's being removed from the dashboard
 import { DollarSign, TrendingUp, Users, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import { DashboardDebug } from "@/components/Debug/DashboardDebug";
+import { useState } from "react";
 
 const Index = () => {
   const navigate = useNavigate();
+  const [showDebug, setShowDebug] = useState(false);
   const { data: metrics = [] } = useQuery({
     queryKey: ['dashboard-metrics'],
     queryFn: async () => {
@@ -29,9 +32,27 @@ const Index = () => {
     return <AlertTriangle className="h-5 w-5 text-warning" />;
   };
 
+  // Filter out profit margin metrics
+  const filteredMetrics = metrics.filter(metric => 
+    !metric.metric_name.toLowerCase().includes('profit margin')
+  );
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
+        {/* Debug Toggle */}
+        <div className="flex justify-end">
+          <button 
+            onClick={() => setShowDebug(!showDebug)}
+            className="px-3 py-1 text-sm bg-muted rounded hover:bg-muted/80"
+          >
+            {showDebug ? "Hide" : "Show"} Debug
+          </button>
+        </div>
+        
+        {/* Debug Information */}
+        {showDebug && <DashboardDebug />}
+        
         {/* Page Header */}
         <div className="flex items-center justify-between">
           <div>
@@ -46,7 +67,7 @@ const Index = () => {
 
         {/* KPI Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {metrics.map((metric) => (
+          {filteredMetrics.map((metric) => (
             <MetricCard
               key={metric.id}
               title={metric.metric_name}
@@ -58,10 +79,9 @@ const Index = () => {
           ))}
         </div>
 
-        {/* Performance Chart and Alerts */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+        {/* Performance Chart - Removed AlertsFeed since it's available in the notification bell */}
+        <div className="grid grid-cols-1 gap-6 mt-8">
           <PerformanceChart />
-          <AlertsFeed />
         </div>
 
         {/* Quick Actions */}
