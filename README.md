@@ -1,8 +1,25 @@
-# Welcome to your Lovable project
+# Flockmate - Poultry Farm Management System
+
+A comprehensive farm operations dashboard for monitoring and analyzing poultry farm performance with real-time data integration.
 
 ## Project info
 
 **URL**: https://lovable.dev/projects/354dfa37-46d4-4c1d-8b9a-1edc70a47e01
+
+## Features
+
+- **Dashboard**: Real-time farm metrics and KPIs
+- **Financial Analytics**: P&L analysis and batch profitability  
+- **Performance Tracking**: FCR, mortality, and growth metrics
+- **Farm Comparisons**: Multi-farm performance benchmarking
+- **Reports**: Generate custom reports and analytics
+- **Data Export**: Export data in multiple formats
+- **User Management**: Role-based access control
+- **Settings**: Comprehensive system configuration
+
+## Theme Configuration
+
+The design system is centralized in `src/config/theme.ts` for easy customization of colors, spacing, typography, and more.
 
 ## How can I edit this code?
 

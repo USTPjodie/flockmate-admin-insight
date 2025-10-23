@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Activity, Target, Users, AlertTriangle, TrendingUp, Filter, Download, BarChart3, LineChart } from "lucide-react";
 import { useState } from "react";
+import { usePerformanceData } from "@/hooks/usePerformanceData";
+import { Badge } from "@/components/ui/badge";
 
 const farmComparison = [
   { farm: "Greenfield A", fcr: 1.65, mortality: 2.1, weight: 2.45, cost: 2.15 },
@@ -31,6 +33,8 @@ const fcrVsMortality = [
 
 const Performance = () => {
   const [activeView, setActiveView] = useState('dashboard');
+  const { farmPerformance, isLoading } = usePerformanceData();
+  const [selectedFarm, setSelectedFarm] = useState('all');
 
   return (
     <DashboardLayout>
@@ -53,16 +57,17 @@ const Performance = () => {
                 <SelectItem value="benchmarks">Benchmarks</SelectItem>
               </SelectContent>
             </Select>
-            <Select defaultValue="all">
+            <Select value={selectedFarm} onValueChange={setSelectedFarm}>
               <SelectTrigger className="w-40">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Farms</SelectItem>
-                <SelectItem value="greenfield">Greenfield A</SelectItem>
-                <SelectItem value="valley">Valley B</SelectItem>
-                <SelectItem value="hillside">Hillside C</SelectItem>
-                <SelectItem value="riverside">Riverside D</SelectItem>
+                {farmPerformance.map(farm => (
+                  <SelectItem key={farm.id} value={farm.farm_name}>
+                    {farm.farm_name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
             <Button variant="outline" size="sm">
@@ -121,14 +126,59 @@ const Performance = () => {
         {/* Dynamic Content */}
         {activeView === 'dashboard' && <PerformanceDashboard />}
         
-        {(activeView === 'comparison' || activeView === 'trends' || activeView === 'benchmarks') && (
+        {activeView === 'comparison' && (
+          <Card className="p-6">
+            <h3 className="text-lg font-semibold text-foreground mb-6">Farm Performance Comparison</h3>
+            {isLoading ? (
+              <p className="text-center text-muted-foreground">Loading...</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-border">
+                      <th className="text-left py-3 px-4 font-medium text-muted-foreground">Farm</th>
+                      <th className="text-center py-3 px-4 font-medium text-muted-foreground">FCR</th>
+                      <th className="text-center py-3 px-4 font-medium text-muted-foreground">Mortality %</th>
+                      <th className="text-center py-3 px-4 font-medium text-muted-foreground">Avg Weight (kg)</th>
+                      <th className="text-center py-3 px-4 font-medium text-muted-foreground">Cost/kg ($)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {farmPerformance.map((farm) => (
+                      <tr key={farm.id} className="border-b border-border hover:bg-muted/50">
+                        <td className="py-4 px-4 font-medium text-foreground">{farm.farm_name}</td>
+                        <td className="py-4 px-4 text-center">
+                          <Badge variant={Number(farm.fcr) < 1.65 ? "default" : "secondary"}>
+                            {Number(farm.fcr).toFixed(2)}
+                          </Badge>
+                        </td>
+                        <td className="py-4 px-4 text-center">
+                          <Badge variant={Number(farm.mortality) < 2.2 ? "default" : "secondary"}>
+                            {Number(farm.mortality).toFixed(1)}%
+                          </Badge>
+                        </td>
+                        <td className="py-4 px-4 text-center text-foreground">
+                          {Number(farm.avg_weight).toFixed(2)}
+                        </td>
+                        <td className="py-4 px-4 text-center text-foreground">
+                          ${Number(farm.cost_per_kg).toFixed(2)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </Card>
+        )}
+        
+        {(activeView === 'trends' || activeView === 'benchmarks') && (
           <Card className="p-6 text-center">
             <h3 className="text-lg font-semibold text-foreground mb-2">
-              {activeView === 'comparison' ? 'Farm Comparison' : 
-               activeView === 'trends' ? 'Trend Analysis' : 'Benchmarks'}
+              {activeView === 'trends' ? 'Trend Analysis' : 'Benchmarks'}
             </h3>
             <p className="text-muted-foreground">
-              Advanced {activeView} analytics dashboard coming soon
+              Detailed {activeView} dashboard coming soon
             </p>
           </Card>
         )}

@@ -150,7 +150,11 @@ const Analytics = () => {
                         </Badge>
                       </td>
                       <td className="py-4 px-4 text-center">
-                        <Button variant="ghost" size="sm">View Details</Button>
+                        <Button variant="ghost" size="sm" onClick={() => {
+                          console.log('Viewing details for:', batch.batch);
+                        }}>
+                          View Details
+                        </Button>
                       </td>
                     </tr>
                   ))}

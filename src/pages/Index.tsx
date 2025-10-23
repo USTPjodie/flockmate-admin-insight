@@ -5,8 +5,10 @@ import { AlertsFeed } from "@/components/dashboard/AlertsFeed";
 import { DollarSign, TrendingUp, Users, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 
 const Index = () => {
+  const navigate = useNavigate();
   const { data: metrics = [] } = useQuery({
     queryKey: ['dashboard-metrics'],
     queryFn: async () => {
@@ -67,7 +69,10 @@ const Index = () => {
           <div className="bg-gradient-primary p-6 rounded-lg text-primary-foreground">
             <h3 className="text-lg font-semibold mb-2">Financial Analytics</h3>
             <p className="text-sm opacity-90 mb-4">View detailed P&L and batch profitability</p>
-            <button className="bg-primary-foreground text-primary px-4 py-2 rounded-md text-sm font-medium hover:bg-opacity-90 transition-colors">
+            <button 
+              className="bg-primary-foreground text-primary px-4 py-2 rounded-md text-sm font-medium hover:bg-opacity-90 transition-colors"
+              onClick={() => navigate('/analytics')}
+            >
               View Reports
             </button>
           </div>
@@ -75,7 +80,10 @@ const Index = () => {
           <div className="bg-gradient-success p-6 rounded-lg text-success-foreground">
             <h3 className="text-lg font-semibold mb-2">Performance Benchmarks</h3>
             <p className="text-sm opacity-90 mb-4">Compare farms and track improvements</p>
-            <button className="bg-success-foreground text-success px-4 py-2 rounded-md text-sm font-medium hover:bg-opacity-90 transition-colors">
+            <button 
+              className="bg-success-foreground text-success px-4 py-2 rounded-md text-sm font-medium hover:bg-opacity-90 transition-colors"
+              onClick={() => navigate('/comparisons')}
+            >
               Compare Now
             </button>
           </div>
@@ -83,7 +91,10 @@ const Index = () => {
           <div className="bg-card border border-card-border p-6 rounded-lg">
             <h3 className="text-lg font-semibold mb-2 text-foreground">Export Data</h3>
             <p className="text-sm text-muted-foreground mb-4">Download reports and analytics data</p>
-            <button className="bg-secondary text-secondary-foreground px-4 py-2 rounded-md text-sm font-medium hover:bg-secondary-light transition-colors">
+            <button 
+              className="bg-secondary text-secondary-foreground px-4 py-2 rounded-md text-sm font-medium hover:bg-secondary-light transition-colors"
+              onClick={() => navigate('/export')}
+            >
               Export Options
             </button>
           </div>

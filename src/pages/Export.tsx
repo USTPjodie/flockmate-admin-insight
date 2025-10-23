@@ -263,7 +263,9 @@ const Export = () => {
                           <h4 className="font-medium text-foreground">{exportItem.name}</h4>
                           <p className="text-sm text-muted-foreground">{exportItem.description}</p>
                         </div>
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" onClick={() => {
+                          console.log('Exporting:', exportItem.name);
+                        }}>
                           <Download className="h-4 w-4 mr-1" />
                           Export
                         </Button>
@@ -326,12 +328,16 @@ const Export = () => {
                     <td className="py-4 px-4 text-center">
                       <div className="flex items-center justify-center space-x-2">
                         {exportItem.status === "completed" && (
-                          <Button variant="ghost" size="sm">
+                          <Button variant="ghost" size="sm" onClick={() => {
+                            console.log('Downloading:', exportItem.name);
+                          }}>
                             <Download className="h-4 w-4" />
                           </Button>
                         )}
                         {exportItem.status === "failed" && (
-                          <Button variant="ghost" size="sm">
+                          <Button variant="ghost" size="sm" onClick={() => {
+                            console.log('Retrying:', exportItem.name);
+                          }}>
                             Retry
                           </Button>
                         )}

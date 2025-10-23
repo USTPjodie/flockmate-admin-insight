@@ -107,10 +107,12 @@ const Comparisons = () => {
               </Select>
             </div>
             <div className="flex items-end">
-              <Button className="w-full">
-                <BarChart3 className="h-4 w-4 mr-2" />
-                Generate Comparison
-              </Button>
+            <Button className="w-full" onClick={() => {
+              console.log('Generating comparison with selected filters');
+            }}>
+              <BarChart3 className="h-4 w-4 mr-2" />
+              Generate Comparison
+            </Button>
             </div>
           </div>
         </Card>

@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Users as UsersIcon, Search, Plus, Filter, Edit, Trash2, Shield, UserCheck, UserX, Mail } from "lucide-react";
+import { useUsers } from "@/hooks/useUsers";
+import { useState } from "react";
 
 const users = [
   {
@@ -100,6 +102,37 @@ const getInitials = (name: string) => {
 };
 
 const Users = () => {
+  const { users: dbUsers, isLoading } = useUsers();
+  const [roleFilter, setRoleFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Filter users based on selected filters
+  const filteredUsers = dbUsers.filter(user => {
+    const matchesRole = roleFilter === 'all' || user.role === roleFilter;
+    const matchesSearch = searchQuery === '' || 
+      user.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesRole && matchesSearch;
+  });
+
+  const userStats = [
+    { label: "Total Users", value: dbUsers.length, icon: UsersIcon },
+    { label: "Admin Users", value: dbUsers.filter(u => u.role === 'admin').length, icon: UserCheck },
+    { label: "Active Users", value: dbUsers.filter(u => u.role === 'admin').length, icon: Mail },
+    { label: "Total Profiles", value: dbUsers.length, icon: UserX },
+  ];
+
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center h-64">
+          <p className="text-muted-foreground">Loading users...</p>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -146,28 +179,19 @@ const Users = () => {
                   type="text"
                   placeholder="Search users..."
                   className="pl-10 w-64"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
-              <Select defaultValue="all">
+              <Select value={roleFilter} onValueChange={setRoleFilter}>
                 <SelectTrigger className="w-40">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Roles</SelectItem>
-                  <SelectItem value="admin">Management Admin</SelectItem>
-                  <SelectItem value="manager">Farm Manager</SelectItem>
-                  <SelectItem value="technician">Poultry Technician</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select defaultValue="all">
-                <SelectTrigger className="w-40">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="inactive">Inactive</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
+                  <SelectItem value="manager">Manager</SelectItem>
+                  <SelectItem value="user">User</SelectItem>
                 </SelectContent>
               </Select>
               <Button variant="outline" size="sm">
@@ -191,35 +215,35 @@ const Users = () => {
                 </tr>
               </thead>
               <tbody>
-                {users.map((user, index) => (
+                {filteredUsers.map((user, index) => (
                   <tr key={index} className="border-b border-border hover:bg-muted/50">
                     <td className="py-4 px-4">
                       <div className="flex items-center space-x-3">
                         <Avatar className="h-10 w-10">
                           <AvatarFallback className="bg-primary text-primary-foreground">
-                            {getInitials(user.name)}
+                            {getInitials(user.full_name)}
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <div className="font-medium text-foreground">{user.name}</div>
+                          <div className="font-medium text-foreground">{user.full_name}</div>
                           <div className="text-sm text-muted-foreground">{user.email}</div>
                         </div>
                       </div>
                     </td>
                     <td className="py-4 px-4">
-                      <Badge className={rolePermissions[user.role as keyof typeof rolePermissions]?.color || "bg-muted text-muted-foreground"}>
+                      <Badge className="bg-primary text-primary-foreground">
                         {user.role}
                       </Badge>
                     </td>
                     <td className="py-4 px-4">
                       <div className="text-sm text-foreground">
-                        {user.farms.join(", ")}
+                        All Farms
                       </div>
                     </td>
                     <td className="py-4 px-4 text-center">
-                      {getStatusBadge(user.status)}
+                      <Badge className="bg-success text-success-foreground">Active</Badge>
                     </td>
-                    <td className="py-4 px-4 text-foreground">{user.lastLogin}</td>
+                    <td className="py-4 px-4 text-foreground">{new Date(user.created_at).toLocaleDateString()}</td>
                     <td className="py-4 px-4 text-center">
                       <div className="flex items-center justify-center space-x-2">
                         <Button variant="ghost" size="sm">

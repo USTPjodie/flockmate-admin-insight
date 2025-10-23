@@ -178,7 +178,20 @@ const Reports = () => {
                 <p className="text-sm text-muted-foreground mb-3">{template.description}</p>
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-muted-foreground">{template.estimatedTime}</span>
-                  <Button size="sm" variant="outline">Generate</Button>
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => {
+                      createReport({
+                        title: template.name,
+                        type: 'operational',
+                        format: 'pdf',
+                        parameters: { template: template.name }
+                      });
+                    }}
+                  >
+                    Generate
+                  </Button>
                 </div>
               </div>
             ))}
@@ -255,16 +268,16 @@ const Reports = () => {
                       <div className="flex items-center justify-center space-x-2">
                         {report.status === "completed" && (
                           <>
-                            <Button variant="ghost" size="sm">
+                            <Button variant="ghost" size="sm" onClick={() => downloadReport(report.id)}>
                               <Eye className="h-4 w-4" />
                             </Button>
-                            <Button variant="ghost" size="sm">
+                            <Button variant="ghost" size="sm" onClick={() => downloadReport(report.id)}>
                               <Download className="h-4 w-4" />
                             </Button>
                           </>
                         )}
                         {report.status === "failed" && (
-                          <Button variant="ghost" size="sm">
+                          <Button variant="ghost" size="sm" onClick={() => retryReport(report.id)}>
                             Retry
                           </Button>
                         )}
