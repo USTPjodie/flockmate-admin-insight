@@ -8,17 +8,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Settings as SettingsIcon, Globe, Bell, Shield, Database, Palette, Save, RefreshCw } from "lucide-react";
-
-const farms = [
-  { id: "farm-1", name: "Greenfield Farm A", location: "North Valley", capacity: 25000, status: "active" },
-  { id: "farm-2", name: "Valley Farm B", location: "East Hills", capacity: 20000, status: "active" },
-  { id: "farm-3", name: "Hillside Farm C", location: "West Ridge", capacity: 30000, status: "active" },
-  { id: "farm-4", name: "Riverside Farm D", location: "South Plain", capacity: 18000, status: "maintenance" },
-];
+import { useState } from "react";
+import { useFarms } from "@/hooks/useFarms";
+import { AddFarmDialog } from "@/components/farms/AddFarmDialog";
 
 const Settings = () => {
+  const { farms, isLoading } = useFarms();
+  const [isAddFarmDialogOpen, setIsAddFarmDialogOpen] = useState(false);
+
   return (
     <DashboardLayout>
+      <AddFarmDialog open={isAddFarmDialogOpen} onOpenChange={setIsAddFarmDialogOpen} />
+      
       <div className="space-y-6">
         {/* Page Header */}
         <div className="flex items-center justify-between">
@@ -137,42 +138,48 @@ const Settings = () => {
             <Card className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-semibold text-foreground">Farm Locations</h3>
-                <Button>Add New Farm</Button>
+                <Button onClick={() => setIsAddFarmDialogOpen(true)}>Add New Farm</Button>
               </div>
               
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-border">
-                      <th className="text-left py-3 px-4 font-medium text-muted-foreground">Farm Name</th>
-                      <th className="text-left py-3 px-4 font-medium text-muted-foreground">Location</th>
-                      <th className="text-center py-3 px-4 font-medium text-muted-foreground">Capacity</th>
-                      <th className="text-center py-3 px-4 font-medium text-muted-foreground">Status</th>
-                      <th className="text-center py-3 px-4 font-medium text-muted-foreground">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {farms.map((farm, index) => (
-                      <tr key={index} className="border-b border-border hover:bg-muted/50">
-                        <td className="py-4 px-4 font-medium text-foreground">{farm.name}</td>
-                        <td className="py-4 px-4 text-foreground">{farm.location}</td>
-                        <td className="py-4 px-4 text-center text-foreground">{farm.capacity.toLocaleString()}</td>
-                        <td className="py-4 px-4 text-center">
-                          <Badge variant={farm.status === "active" ? "default" : "secondary"}>
-                            {farm.status}
-                          </Badge>
-                        </td>
-                        <td className="py-4 px-4 text-center">
-                          <div className="flex items-center justify-center space-x-2">
-                            <Button variant="ghost" size="sm">Edit</Button>
-                            <Button variant="ghost" size="sm">Deactivate</Button>
-                          </div>
-                        </td>
+              {isLoading ? (
+                <div className="flex items-center justify-center h-32">
+                  <p className="text-muted-foreground">Loading farms...</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-border">
+                        <th className="text-left py-3 px-4 font-medium text-muted-foreground">Farm Name</th>
+                        <th className="text-left py-3 px-4 font-medium text-muted-foreground">Location</th>
+                        <th className="text-center py-3 px-4 font-medium text-muted-foreground">Capacity</th>
+                        <th className="text-center py-3 px-4 font-medium text-muted-foreground">Status</th>
+                        <th className="text-center py-3 px-4 font-medium text-muted-foreground">Actions</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {farms.map((farm) => (
+                        <tr key={farm.id} className="border-b border-border hover:bg-muted/50">
+                          <td className="py-4 px-4 font-medium text-foreground">{farm.name}</td>
+                          <td className="py-4 px-4 text-foreground">{farm.location}</td>
+                          <td className="py-4 px-4 text-center text-foreground">{farm.capacity.toLocaleString()}</td>
+                          <td className="py-4 px-4 text-center">
+                            <Badge variant={farm.status === "active" ? "default" : "secondary"}>
+                              {farm.status}
+                            </Badge>
+                          </td>
+                          <td className="py-4 px-4 text-center">
+                            <div className="flex items-center justify-center space-x-2">
+                              <Button variant="ghost" size="sm">Edit</Button>
+                              <Button variant="ghost" size="sm">Deactivate</Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </Card>
           </TabsContent>
 

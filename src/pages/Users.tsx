@@ -8,66 +8,9 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Users as UsersIcon, Search, Plus, Filter, Edit, Trash2, Shield, UserCheck, UserX, Mail } from "lucide-react";
 import { useUsers } from "@/hooks/useUsers";
 import { useState } from "react";
-
-const users = [
-  {
-    id: "USR-001",
-    name: "John Smith",
-    email: "john.smith@flockmate.com",
-    role: "Farm Manager",
-    farms: ["Greenfield A", "Greenfield B"],
-    status: "active",
-    lastLogin: "2024-03-31 14:32",
-    joinDate: "2023-01-15"
-  },
-  {
-    id: "USR-002", 
-    name: "Sarah Johnson",
-    email: "sarah.johnson@flockmate.com",
-    role: "Poultry Technician",
-    farms: ["Valley B"],
-    status: "active",
-    lastLogin: "2024-03-31 09:15",
-    joinDate: "2023-03-22"
-  },
-  {
-    id: "USR-003",
-    name: "Mike Chen",
-    email: "mike.chen@flockmate.com", 
-    role: "Management Admin",
-    farms: ["All Farms"],
-    status: "active",
-    lastLogin: "2024-03-31 16:45",
-    joinDate: "2022-11-08"
-  },
-  {
-    id: "USR-004",
-    name: "Lisa Davis",
-    email: "lisa.davis@flockmate.com",
-    role: "Farm Manager",
-    farms: ["Hillside C"],
-    status: "inactive",
-    lastLogin: "2024-03-25 11:20",
-    joinDate: "2023-05-12"
-  },
-  {
-    id: "USR-005",
-    name: "Robert Wilson",
-    email: "robert.wilson@flockmate.com",
-    role: "Poultry Technician", 
-    farms: ["Riverside D"],
-    status: "pending",
-    lastLogin: "Never",
-    joinDate: "2024-03-30"
-  }
-];
-
-const userStats = [
-  { label: "Total Users", value: 24, icon: UsersIcon },
-  { label: "Active Users", value: 18, icon: UserCheck },
-  { label: "Pending Invites", value: 3, icon: Mail },
-  { label: "Inactive Users", value: 3, icon: UserX },
-];
+import { AddUserDialog } from "@/components/users/AddUserDialog";
+import { MakeAdminButton } from "@/components/users/MakeAdminButton";
+import { useToast } from "@/hooks/use-toast";
 
 const rolePermissions = {
   "Management Admin": {
@@ -102,13 +45,18 @@ const getInitials = (name: string) => {
 };
 
 const Users = () => {
-  const { users: dbUsers, isLoading } = useUsers();
+  const { users: dbUsers, currentUserProfile, isLoading, isError, error } = useUsers();
+  const { toast } = useToast();
   const [roleFilter, setRoleFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isAddUserDialogOpen, setIsAddUserDialogOpen] = useState(false);
+
+  // Use fallback to current user profile if we can't load all users
+  const usersToDisplay = isError && currentUserProfile ? [currentUserProfile] : dbUsers;
 
   // Filter users based on selected filters
-  const filteredUsers = dbUsers.filter(user => {
+  const filteredUsers = usersToDisplay.filter(user => {
     const matchesRole = roleFilter === 'all' || user.role === roleFilter;
     const matchesSearch = searchQuery === '' || 
       user.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -117,10 +65,10 @@ const Users = () => {
   });
 
   const userStats = [
-    { label: "Total Users", value: dbUsers.length, icon: UsersIcon },
-    { label: "Admin Users", value: dbUsers.filter(u => u.role === 'admin').length, icon: UserCheck },
-    { label: "Active Users", value: dbUsers.filter(u => u.role === 'admin').length, icon: Mail },
-    { label: "Total Profiles", value: dbUsers.length, icon: UserX },
+    { label: "Total Users", value: usersToDisplay.length, icon: UsersIcon },
+    { label: "Admin Users", value: usersToDisplay.filter(u => u.role === 'admin').length, icon: UserCheck },
+    { label: "Active Users", value: usersToDisplay.filter(u => u.role === 'admin').length, icon: Mail },
+    { label: "Total Profiles", value: usersToDisplay.length, icon: UserX },
   ];
 
   if (isLoading) {
@@ -133,8 +81,48 @@ const Users = () => {
     );
   }
 
+  if (isError) {
+    const errorMessage = error?.message || "Unknown error occurred";
+    const isRecursionError = errorMessage.includes('infinite recursion') || errorMessage.includes('Database policy error');
+    
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center max-w-md">
+            <p className="text-muted-foreground mb-2">Error loading users</p>
+            <p className="text-sm text-destructive mb-4">{errorMessage}</p>
+            
+            {isRecursionError ? (
+              <div className="text-sm text-muted-foreground">
+                <p className="mb-2">This is a database configuration issue.</p>
+                <p>To fix this:</p>
+                <ul className="text-left list-disc pl-5 mt-2 space-y-1">
+                  <li>Run the database migration to fix user policies</li>
+                  <li>Or ensure you're logged in as an admin user</li>
+                  <li>Contact your system administrator if the problem persists</li>
+                </ul>
+                {currentUserProfile && (
+                  <div className="mt-4 p-4 bg-muted rounded-lg">
+                    <p className="font-medium">Showing your profile only:</p>
+                    <p className="text-sm">{currentUserProfile.full_name} ({currentUserProfile.email})</p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                You may need to be logged in as an admin to view this page.
+              </p>
+            )}
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout>
+      <AddUserDialog open={isAddUserDialogOpen} onOpenChange={setIsAddUserDialogOpen} />
+      
       <div className="space-y-6">
         {/* Page Header */}
         <div className="flex items-center justify-between">
@@ -143,11 +131,15 @@ const Users = () => {
             <p className="text-muted-foreground">Manage user accounts, roles, and permissions</p>
           </div>
           <div className="flex items-center space-x-3">
+            <MakeAdminButton 
+              email="jodierey.fernandez@ustp.edu.ph" 
+              onAdminMade={() => window.location.reload()}
+            />
             <Button variant="outline" size="sm">
               <Mail className="h-4 w-4 mr-2" />
               Send Invites
             </Button>
-            <Button size="sm">
+            <Button size="sm" onClick={() => setIsAddUserDialogOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />
               Add User
             </Button>
@@ -231,9 +223,17 @@ const Users = () => {
                       </div>
                     </td>
                     <td className="py-4 px-4">
-                      <Badge className="bg-primary text-primary-foreground">
-                        {user.role}
-                      </Badge>
+                      <div className="flex items-center space-x-2">
+                        <Badge className="bg-primary text-primary-foreground">
+                          {user.role}
+                        </Badge>
+                        {user.role !== 'admin' && user.email === 'jodierey.fernandez@ustp.edu.ph' && (
+                          <MakeAdminButton 
+                            email="jodierey.fernandez@ustp.edu.ph" 
+                            onAdminMade={() => window.location.reload()}
+                          />
+                        )}
+                      </div>
                     </td>
                     <td className="py-4 px-4">
                       <div className="text-sm text-foreground">

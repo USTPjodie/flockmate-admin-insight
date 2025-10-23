@@ -6,53 +6,53 @@
 export const theme = {
   // Color palette - easily modify colors here
   colors: {
-    // Primary colors
+    // Primary colors (#004030 as main)
     primary: {
-      main: '221 83% 53%',
-      light: '221 83% 63%',
-      dark: '221 83% 43%',
-      foreground: '210 40% 98%',
+      main: '160 100% 12.5%', // #004030
+      light: '160 100% 20%',  // Lighter variant
+      dark: '160 100% 8%',    // Darker variant
+      foreground: '45 30% 97%', // #FFF9E5
     },
-    // Secondary colors
+    // Secondary colors (#4A9782 as main)
     secondary: {
-      main: '210 40% 96%',
-      light: '210 40% 98%',
-      dark: '210 40% 94%',
-      foreground: '222 47% 11%',
+      main: '165 35% 45%',    // #4A9782
+      light: '165 35% 55%',   // Lighter variant
+      dark: '165 35% 35%',    // Darker variant
+      foreground: '45 30% 97%', // #FFF9E5
     },
-    // Accent colors
+    // Accent colors (#DCD0A8 as main)
     accent: {
-      main: '262 83% 58%',
-      light: '262 83% 68%',
-      dark: '262 83% 48%',
-      foreground: '210 40% 98%',
+      main: '45 20% 76%',     // #DCD0A8
+      light: '45 20% 85%',    // Lighter variant
+      dark: '45 20% 65%',     // Darker variant
+      foreground: '160 100% 12.5%', // #004030
     },
     // Status colors
     success: {
-      main: '142 76% 36%',
-      light: '142 76% 46%',
-      dark: '142 76% 26%',
-      foreground: '0 0% 100%',
+      main: '165 35% 45%',    // #4A9782
+      light: '165 35% 55%',   // Lighter variant
+      dark: '165 35% 35%',    // Darker variant
+      foreground: '45 30% 97%', // #FFF9E5
     },
     warning: {
-      main: '38 92% 50%',
-      light: '38 92% 60%',
-      dark: '38 92% 40%',
-      foreground: '0 0% 100%',
+      main: '45 20% 76%',     // #DCD0A8
+      light: '45 20% 85%',    // Lighter variant
+      dark: '45 20% 65%',     // Darker variant
+      foreground: '160 100% 12.5%', // #004030
     },
     error: {
-      main: '0 84% 60%',
-      light: '0 84% 70%',
-      dark: '0 84% 50%',
-      foreground: '0 0% 100%',
+      main: '0 80% 30%',      // Complementary red
+      light: '0 80% 40%',     // Lighter variant
+      dark: '0 80% 20%',      // Darker variant
+      foreground: '45 30% 97%', // #FFF9E5
     },
     // Neutral colors
-    background: '0 0% 100%',
-    foreground: '222 47% 11%',
-    card: '0 0% 100%',
-    cardBorder: '214 32% 91%',
-    muted: '210 40% 96%',
-    mutedForeground: '215 16% 47%',
+    background: '45 30% 97%',     // #FFF9E5
+    foreground: '160 100% 12.5%', // #004030
+    card: '45 30% 97%',           // #FFF9E5
+    cardBorder: '45 20% 76%',     // #DCD0A8
+    muted: '45 20% 85%',          // Light #DCD0A8
+    mutedForeground: '160 100% 12.5%', // #004030
   },
 
   // Typography

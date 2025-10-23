@@ -17,6 +17,15 @@ A comprehensive farm operations dashboard for monitoring and analyzing poultry f
 - **User Management**: Role-based access control
 - **Settings**: Comprehensive system configuration
 
+## Database Configuration
+
+This project now uses a new Supabase database:
+
+- **Project ID**: `weonltiidlnpgvanwvba`
+- **URL**: `https://weonltiidlnpgvanwvba.supabase.co`
+
+Environment variables have been updated in the `.env` file to reflect this change.
+
 ## Theme Configuration
 
 The design system is centralized in `src/config/theme.ts` for easy customization of colors, spacing, typography, and more.

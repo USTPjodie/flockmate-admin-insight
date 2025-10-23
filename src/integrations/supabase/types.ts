@@ -98,6 +98,36 @@ export type Database = {
         }
         Relationships: []
       }
+      farms: {
+        Row: {
+          capacity: number
+          created_at: string
+          id: string
+          location: string
+          name: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          capacity: number
+          created_at?: string
+          id?: string
+          location: string
+          name: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          capacity?: number
+          created_at?: string
+          id?: string
+          location?: string
+          name?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       farm_performance: {
         Row: {
           avg_weight: number

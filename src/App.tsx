@@ -16,6 +16,7 @@ const Comparisons = lazy(() => import("./pages/Comparisons"));
 const Export = lazy(() => import("./pages/Export"));
 const Users = lazy(() => import("./pages/Users"));
 const Settings = lazy(() => import("./pages/Settings"));
+const Debug = lazy(() => import("./pages/Debug"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Loading component
@@ -55,6 +56,7 @@ const AppContent = () => {
           <Route path="/export" element={<Export />} />
           <Route path="/users" element={<Users />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/debug" element={<Debug />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
